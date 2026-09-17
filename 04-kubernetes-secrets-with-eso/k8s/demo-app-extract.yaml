@@ -1,0 +1,17 @@
+# dataFrom.extract: every field of one KV secret becomes a key of the
+# Kubernetes Secret - no per-field listing.
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: demo-app-extract
+  namespace: demo
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    kind: SecretStore
+    name: openbao
+  target:
+    name: demo-app-extract
+  dataFrom:
+    - extract:
+        key: demo/demo-app

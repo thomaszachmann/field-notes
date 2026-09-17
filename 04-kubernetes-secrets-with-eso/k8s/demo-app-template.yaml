@@ -1,0 +1,24 @@
+# template: build files or composite values from the fetched fields. The
+# data source is the same as in extract; only the target changes shape.
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: demo-app-template
+  namespace: demo
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    kind: SecretStore
+    name: openbao
+  target:
+    name: demo-app-template
+    template:
+      engineVersion: v2
+      data:
+        app.env: |
+          APP_USERNAME={{ .username }}
+          APP_PASSWORD={{ .password }}
+        basic-auth: "{{ .username }}:{{ .password | b64enc }}"
+  dataFrom:
+    - extract:
+        key: demo/demo-app

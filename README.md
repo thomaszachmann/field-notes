@@ -16,11 +16,23 @@ them with `tools/build.sh`.
 | 1 | **OpenBao on Kubernetes** – Helm, Raft, init and unseal, Kubernetes auth, and what is still missing afterwards | [DE](01-openbao-on-kubernetes/openbao-on-kubernetes-de.pdf) · [EN](01-openbao-on-kubernetes/openbao-on-kubernetes-en.pdf) |
 | 2 | **Dynamic Database Credentials with OpenBao** – short-lived PostgreSQL access through the database secrets engine and the External Secrets Operator, Miniflux as the worked example | [DE](02-openbao-dynamic-credentials/openbao-dynamic-credentials-de.pdf) · [EN](02-openbao-dynamic-credentials/openbao-dynamic-credentials-en.pdf) |
 | 3 | **OpenBao on a VM** – a single node with Ansible and OpenTofu: installation, bootstrap runbook, snapshots, disaster recovery | [DE](03-openbao-on-a-vm/openbao-on-a-vm-de.pdf) · [EN](03-openbao-on-a-vm/openbao-on-a-vm-en.pdf) |
+| 4 | **Kubernetes Secrets with ESO and OpenBao** – static secrets from KV v2 into the cluster: `data`, `extract`, `find`, `template`, rotation with Reloader, `PushSecret` back | [DE](04-kubernetes-secrets-with-eso/kubernetes-secrets-with-eso-de.pdf) · [EN](04-kubernetes-secrets-with-eso/kubernetes-secrets-with-eso-en.pdf) |
 
-The three OpenBao notes form a sequence: Nº 1 builds the secrets store in the
-cluster, Nº 2 lets an application consume it, Nº 3 shows the same OpenBao on
-a VM with the full bootstrap and recovery procedure that the cluster setup
-still lacks.
+The four OpenBao notes form a sequence: Nº 1 builds the secrets store in the
+cluster, Nº 2 lets an application consume dynamic credentials, Nº 3 shows the
+same OpenBao on a VM with the full bootstrap and recovery procedure that the
+cluster setup still lacks, Nº 4 covers the everyday case of static secrets
+and what rotation really means.
+
+## Planned
+
+| Nº | Working title | Depends on |
+|---|---|---|
+| 5 | **Auto-unseal** – transit seal against the VM OpenBao, and `seal "pkcs11"` with a USB HSM | HSM hardware, VM access |
+| 6 | **Snapshots from the cluster** – Raft snapshot CronJob to S3-compatible storage, restore drill on a throwaway cluster | object storage in the cluster |
+| 7 | **PKI with OpenBao and cert-manager** – internal CA, certificates for ingress and service-to-service | cert-manager |
+| 8 | **Keycloak and OpenBao** – Keycloak in the cluster, OIDC login for OpenBao, groups to policies | ingress hostname for the OIDC redirect |
+| 9 | **OpenTofu for the cluster OpenBao** – every CLI step from Nº 1, 2 and 4 as code | admin login (Nº 1, part VI) |
 
 ## What the notes contain – and what they do not
 

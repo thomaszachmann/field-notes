@@ -1,0 +1,19 @@
+# dataFrom.find: every KV secret whose path matches the pattern. Needs
+# "list" on secret/metadata/<prefix> in the OpenBao policy.
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: demo-find
+  namespace: demo
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    kind: SecretStore
+    name: openbao
+  target:
+    name: demo-find
+  dataFrom:
+    - find:
+        path: demo
+        name:
+          regexp: ".*"

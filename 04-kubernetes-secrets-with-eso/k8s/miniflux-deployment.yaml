@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: miniflux
+  namespace: demo
+  annotations:
+    # Reloader restarts this Deployment whenever a Secret or ConfigMap it
+    # references changes - env vars are only read at container start.
+    reloader.stakater.com/auto: "true"
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: miniflux
+
+  template:
+    metadata:
+      labels:
+        app: miniflux
+
+    spec:
+      containers:
+        - name: miniflux
+          image: miniflux/miniflux:2.3.3
+          ports:
+            - containerPort: 8080
+
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: miniflux-db
+                  key: DATABASE_URL
+
+            - name: RUN_MIGRATIONS
+              value: "1"
+
+            - name: CREATE_ADMIN
+              value: "1"
+
+            - name: ADMIN_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: miniflux-admin
+                  key: ADMIN_USERNAME
+
+            - name: ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: miniflux-admin
+                  key: ADMIN_PASSWORD

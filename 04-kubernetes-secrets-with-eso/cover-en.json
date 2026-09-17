@@ -1,0 +1,20 @@
+{
+  "author": "Thomas Zachmann",
+  "year": "2026",
+  "date": "September 2026",
+  "series": "Field Notes · Nº 4",
+  "topics": "OpenBao · ESO · KV v2",
+  "lang": "en",
+  "w1": "Kubernetes",
+  "w2": "Secrets",
+  "w3": "with ESO",
+  "tagline": "Fetching static secrets from the KV engine into the cluster, rotating them, pushing them back – and why a rotated secret is not yet a rotated application.",
+  "diagram": "<svg class=\"diagram\" viewBox=\"0 0 300 70\" xmlns=\"http://www.w3.org/2000/svg\" aria-hidden=\"true\"><g stroke=\"#0B0D12\" stroke-width=\"1\" fill=\"none\"><line x1=\"30\" y1=\"20\" x2=\"150\" y2=\"20\"/><line x1=\"150\" y1=\"20\" x2=\"270\" y2=\"20\"/><line x1=\"150\" y1=\"20\" x2=\"150\" y2=\"56\"/></g><circle cx=\"30\" cy=\"20\" r=\"3.2\" fill=\"#0B0D12\"/><circle cx=\"150\" cy=\"20\" r=\"3.2\" fill=\"#2547F4\"/><circle cx=\"270\" cy=\"20\" r=\"3.2\" fill=\"#0B0D12\"/><circle cx=\"150\" cy=\"56\" r=\"3.2\" fill=\"#0B0D12\"/><g font-family=\"JetBrains Mono, monospace\" font-size=\"6.2\" fill=\"#6B7280\" letter-spacing=\"0.5\"><text x=\"30\" y=\"34\" text-anchor=\"middle\">kv v2</text><text x=\"150\" y=\"9\" text-anchor=\"middle\">externalsecret</text><text x=\"270\" y=\"34\" text-anchor=\"middle\">secret</text><text x=\"158\" y=\"58.5\" text-anchor=\"start\">reloader · restart</text></g></svg>",
+  "blurb_title": "The Secret says admin456. The application accepts admin123. Both are right.",
+  "blurb_1": "This guide brings static secrets from OpenBao into the cluster with the External Secrets Operator – field by field, as a whole secret, by pattern, as a rendered file – and writes them back with PushSecret. Every variant tested on the cluster, with the policy line it needs.",
+  "blurb_2": "And four errors that lie in wait for every rotation: the policy that does not know the path; <span class=\"mono\">kv put</span> deleting a field; the pod that never reads the new Secret; the application that only takes the password on its first start. Reloader solves one of them.",
+  "code": "<span class=\"c\">-- The difference that deleted a field</span>\nbao kv put   secret/demo/miniflux admin_password=…   <span class=\"c\"># replaces everything</span>\nbao kv <span class=\"a\">patch</span> secret/demo/miniflux admin_password=…   <span class=\"c\"># changes one</span>",
+  "steps": "      <div class=\"step\"><div class=\"k\">01</div><div class=\"t\">kv put</div><div class=\"d\">secret in OpenBao, version 1</div></div>\n      <div class=\"step\"><div class=\"k\">02</div><div class=\"t\">Policy</div><div class=\"d\">read on secret/data/…</div></div>\n      <div class=\"step\"><div class=\"k\">03</div><div class=\"t\">ExternalSecret</div><div class=\"d\">field → key, Owner</div></div>\n      <div class=\"step hot\"><div class=\"k\">04</div><div class=\"t\">Rotation</div><div class=\"d\">kv patch, not put</div></div>\n      <div class=\"step\"><div class=\"k\">05</div><div class=\"t\">Reloader</div><div class=\"d\">hash as env → rollout</div></div>\n      <div class=\"step\"><div class=\"k\">06</div><div class=\"t\">PushSecret</div><div class=\"d\">cluster → OpenBao</div></div>",
+  "spec": "      <tr><td>openbao</td><td>2.6.2 · kv v2 · secret/</td></tr>\n      <tr><td>external-secrets</td><td>2.10.0 · v1 · PushSecret v1alpha1</td></tr>\n      <tr><td>reloader</td><td>chart 2.2.17 · watchGlobally</td></tr>\n      <tr><td>miniflux</td><td>2.3.3</td></tr>\n      <tr><td>policy</td><td>8 lines · 6 errors</td></tr>",
+  "colophon": "__PAGES__ pages · 7 parts · 2 appendices<br>Deep dive: <b>Vault in Practice</b><br>leanpub.com/vault-in-practice<br>Set in Inter Tight, Inter and JetBrains Mono.<br>All output is real terminal output."
+}
