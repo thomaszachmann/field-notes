@@ -1,26 +1,16 @@
 # OpenBao Field Notes · Nº 8 of 9 – Keycloak and OpenBao
 
-**Status: planned.** No PDF yet.
+Keycloak in the cluster via operator (CNPG database, TLS from the OpenBao
+CA of Nº 5), a realm as code with client, group mapper, groups and users,
+OIDC auth in OpenBao, Keycloak groups mapped to policies through external
+groups. Proven with ID tokens; the browser route is documented. Includes the
+manifests in `k8s/`, the OpenBao setup in `openbao/oidc-setup.sh` and a note
+on reaching Keycloak from a workstation.
 
-*Deploying Keycloak in the cluster, a realm with groups, OIDC login for OpenBao – and groups that become policies instead of passwords that live in OpenBao*
+| | |
+|---|---|
+| German | [`keycloak-and-openbao-de.pdf`](keycloak-and-openbao-de.pdf) |
+| English | [`keycloak-and-openbao-en.pdf`](keycloak-and-openbao-en.pdf) |
+| Source | `de.md`, `en.md`, `cover-de.json`, `cover-en.json` |
 
-German title: *Keycloak und OpenBao*
-
-## Planned outline
-
-- What this is about – userpass is an interim step (Nº 1, Nº 3)
-- Part I – Keycloak via operator: Postgres (CNPG), ingress, TLS from Nº 5
-- Part II – Realm, client, groups, mapper for the groups claim
-- Part III – OIDC auth in OpenBao: discovery, redirect URIs, role
-- Part IV – Groups → external groups → policies
-- Part V – Login via CLI and UI, token TTLs
-- Part VI – What went wrong
-- Part VII – Operation: break glass without Keycloak, retiring userpass
-
-## Prerequisites
-
-ingress hostname for Keycloak and the OIDC redirect, a browser
-
-The outlines in `de.draft.md` / `en.draft.md` become `de.md` / `en.md` when
-the note is written; `tools/build-all.sh` only builds directories that have
-`de.md` or `en.md`.
+Build: `tools/build.sh openbao/08-keycloak-and-openbao de` (or `en`) from the repository root.

@@ -13,7 +13,7 @@ Every note is available in German and English as a PDF. The Markdown sources,
 cover data and manifests are in this repository; the PDFs are built from
 them with `tools/build.sh`.
 
-## OpenBao – nine notes, six published
+## OpenBao – nine notes, seven published
 
 | Nº | Title | Read |
 |---|---|---|
@@ -23,20 +23,20 @@ them with `tools/build.sh`.
 | 4 | **Kubernetes Secrets with ESO and OpenBao** – static secrets from KV v2 into the cluster: `data`, `extract`, `find`, `template`, rotation with Reloader, `PushSecret` back | [DE](openbao/04-kubernetes-secrets-with-eso/kubernetes-secrets-with-eso-de.pdf) · [EN](openbao/04-kubernetes-secrets-with-eso/kubernetes-secrets-with-eso-en.pdf) |
 | 5 | **PKI with OpenBao and cert-manager** – root and intermediate CA in OpenBao, certificates via cert-manager for ingress and service-to-service, renewal and revocation | [DE](openbao/05-pki-with-openbao-and-cert-manager/pki-with-openbao-and-cert-manager-de.pdf) · [EN](openbao/05-pki-with-openbao-and-cert-manager/pki-with-openbao-and-cert-manager-en.pdf) |
 | 7 | **Raft Snapshots from the Cluster** – a CronJob with its own identity, verified archives to MinIO, a staleness check, and a restore drill on an isolated instance with two key sets | [DE](openbao/07-snapshots-from-the-cluster/snapshots-from-the-cluster-de.pdf) · [EN](openbao/07-snapshots-from-the-cluster/snapshots-from-the-cluster-en.pdf) |
+| 8 | **Keycloak and OpenBao** – Keycloak in the cluster via operator, a realm as code, OIDC login for OpenBao, groups that become policies through external groups | [DE](openbao/08-keycloak-and-openbao/keycloak-and-openbao-de.pdf) · [EN](openbao/08-keycloak-and-openbao/keycloak-and-openbao-en.pdf) |
 
 The notes form a sequence: Nº 1 builds the secrets store in the cluster, Nº 2
 lets an application consume dynamic credentials, Nº 3 shows the same OpenBao
 on a VM with the full bootstrap and recovery procedure that the cluster setup
 still lacks, Nº 4 covers the everyday case of static secrets and what
 rotation really means, Nº 5 moves the cluster's CA into OpenBao, Nº 7 backs
-it all up and rehearses the restore.
+it all up and rehearses the restore, Nº 8 gives humans a login through Keycloak.
 
 ## Planned
 
 | Nº | Working title | Depends on |
 |---|---|---|
 | 6 | [**Auto-Unseal with Transit and a Nitrokey HSM**](openbao/06-auto-unseal/) – transit seal against the VM OpenBao, and `seal "pkcs11"` with a Nitrokey HSM 2 | HSM hardware, VM access |
-| 8 | [**Keycloak and OpenBao**](openbao/08-keycloak-and-openbao/) – Keycloak in the cluster, OIDC login for OpenBao, groups to policies | ingress hostname for the OIDC redirect |
 | 9 | [**OpenTofu for the Cluster OpenBao**](openbao/09-opentofu-for-the-cluster-openbao/) – every CLI step from Nº 1, 2, 4 and 5 as code | admin login (Nº 1, part VI) |
 
 Each planned note has a directory with its README, the planned outline and

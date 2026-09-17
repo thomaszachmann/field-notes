@@ -1,0 +1,65 @@
+# Realm "homelab" as code. Applied once by the operator; changes need a
+# delete + re-apply (imports are not reconciled). Passwords are dev values.
+apiVersion: k8s.keycloak.org/v2beta1
+kind: KeycloakRealmImport
+metadata:
+  name: homelab
+  namespace: keycloak
+spec:
+  keycloakCRName: keycloak
+  realm:
+    realm: homelab
+    enabled: true
+    displayName: Homelab
+    sslRequired: external
+    groups:
+      - name: openbao-admins
+      - name: openbao-readers
+    clients:
+      - clientId: openbao
+        name: OpenBao
+        protocol: openid-connect
+        publicClient: false
+        secret: openbao-client-secret-123
+        standardFlowEnabled: true          # browser login (UI, CLI callback)
+        directAccessGrantsEnabled: true    # password grant - for the JWT test only, off in production
+        redirectUris:
+          - "https://bao.example.internal/ui/vault/auth/oidc/oidc/callback"
+          - "http://localhost:8250/oidc/callback"
+        protocolMappers:
+          # Put the user's groups into the ID token as a flat "groups" claim -
+          # that is what OpenBao's groups_claim reads.
+          - name: groups
+            protocol: openid-connect
+            protocolMapper: oidc-group-membership-mapper
+            config:
+              claim.name: groups
+              full.path: "false"
+              id.token.claim: "true"
+              access.token.claim: "true"
+              userinfo.token.claim: "true"
+    users:
+      - username: alice
+        enabled: true
+        email: alice@example.internal
+        firstName: Alice
+        lastName: Anders
+        emailVerified: true     # otherwise: 'Account is not fully set up' (required action VERIFY_EMAIL)
+        requiredActions: []
+        groups: ["openbao-admins"]
+        credentials:
+          - type: password
+            value: alice123
+            temporary: false
+      - username: bob
+        enabled: true
+        email: bob@example.internal
+        firstName: Bob
+        lastName: Berg
+        emailVerified: true     # otherwise: 'Account is not fully set up' (required action VERIFY_EMAIL)
+        requiredActions: []
+        groups: ["openbao-readers"]
+        credentials:
+          - type: password
+            value: bob123
+            temporary: false

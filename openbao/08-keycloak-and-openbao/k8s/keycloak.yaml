@@ -1,0 +1,53 @@
+# TLS for Keycloak from the OpenBao CA (Field Note 5). Keycloak terminates
+# TLS itself; the hostname is its own Service name, so OpenBao inside the
+# cluster and a browser via port-forward + /etc/hosts see the same issuer.
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: keycloak-tls
+  namespace: keycloak
+spec:
+  secretName: keycloak-tls
+  duration: 720h
+  renewBefore: 240h
+  privateKey:
+    algorithm: ECDSA
+    size: 256
+    rotationPolicy: Always
+  dnsNames:
+    - keycloak-service.keycloak.svc.cluster.local
+    - keycloak-service.keycloak.svc
+  issuerRef:
+    kind: ClusterIssuer
+    name: openbao-cluster-internal
+---
+apiVersion: k8s.keycloak.org/v2beta1
+kind: Keycloak
+metadata:
+  name: keycloak
+  namespace: keycloak
+spec:
+  instances: 1
+  db:
+    vendor: postgres
+    host: keycloak-db-rw
+    database: keycloak
+    usernameSecret:
+      name: keycloak-db-app
+      key: username
+    passwordSecret:
+      name: keycloak-db-app
+      key: password
+  hostname:
+    hostname: https://keycloak-service.keycloak.svc.cluster.local:8443
+    strict: true
+  http:
+    tlsSecret: keycloak-tls
+  ingress:
+    enabled: false
+  resources:
+    requests:
+      cpu: 500m
+      memory: 1Gi
+    limits:
+      memory: 2Gi

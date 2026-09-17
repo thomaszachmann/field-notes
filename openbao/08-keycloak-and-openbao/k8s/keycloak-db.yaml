@@ -1,0 +1,16 @@
+# PostgreSQL for Keycloak via the CloudNativePG operator. One instance,
+# Longhorn PVC. CNPG creates the secret keycloak-db-app (username/password).
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: keycloak-db
+  namespace: keycloak
+spec:
+  instances: 1
+  storage:
+    size: 5Gi
+    storageClass: longhorn
+  bootstrap:
+    initdb:
+      database: keycloak
+      owner: keycloak
