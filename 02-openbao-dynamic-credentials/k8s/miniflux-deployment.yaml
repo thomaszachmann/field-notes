@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: miniflux
+  namespace: demo
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: miniflux
+
+  template:
+    metadata:
+      labels:
+        app: miniflux
+
+    spec:
+      containers:
+        - name: miniflux
+          image: miniflux/miniflux:2.3.3
+          ports:
+            - containerPort: 8080
+
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: miniflux-db
+                  key: DATABASE_URL
+
+            - name: RUN_MIGRATIONS
+              value: "1"
+
+            - name: CREATE_ADMIN
+              value: "1"
+
+            - name: ADMIN_USERNAME
+              value: "admin"
+
+            - name: ADMIN_PASSWORD
+              value: "admin123"

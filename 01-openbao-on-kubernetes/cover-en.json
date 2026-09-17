@@ -1,0 +1,20 @@
+{
+  "author": "Thomas Zachmann",
+  "year": "2026",
+  "lang": "en",
+  "series": "Field Notes · Nº 1",
+  "topics": "OpenBao · Kubernetes · Helm",
+  "date": "September 2026",
+  "w1": "OpenBao",
+  "w2": "on",
+  "w3": "Kubernetes",
+  "tagline": "A secrets store inside the cluster: Helm, Raft, init and unseal, Kubernetes auth – and what is still missing afterwards.",
+  "diagram": "<svg class=\"diagram\" viewBox=\"0 0 300 70\" xmlns=\"http://www.w3.org/2000/svg\" aria-hidden=\"true\"><g stroke=\"#0B0D12\" stroke-width=\"1\" fill=\"none\"><line x1=\"30\" y1=\"20\" x2=\"150\" y2=\"20\"/><line x1=\"150\" y1=\"20\" x2=\"270\" y2=\"20\"/><line x1=\"150\" y1=\"20\" x2=\"150\" y2=\"56\"/></g><circle cx=\"30\" cy=\"20\" r=\"3.2\" fill=\"#0B0D12\"/><circle cx=\"150\" cy=\"20\" r=\"3.2\" fill=\"#2547F4\"/><circle cx=\"270\" cy=\"20\" r=\"3.2\" fill=\"#0B0D12\"/><circle cx=\"150\" cy=\"56\" r=\"3.2\" fill=\"#0B0D12\"/><g font-family=\"JetBrains Mono, monospace\" font-size=\"6.2\" fill=\"#6B7280\" letter-spacing=\"0.5\"><text x=\"30\" y=\"34\" text-anchor=\"middle\">helm</text><text x=\"150\" y=\"9\" text-anchor=\"middle\">openbao-0</text><text x=\"270\" y=\"34\" text-anchor=\"middle\">api-server</text><text x=\"158\" y=\"58.5\" text-anchor=\"start\">pvc · /openbao/data</text></g></svg>",
+  "blurb_title": "The pod is running. It is sealed. And that is exactly right.",
+  "blurb_1": "This guide documents building an OpenBao inside a Kubernetes cluster as it actually happened: Helm values with their reasoning, init and unseal in a pod shell, Kubernetes auth with TokenReview, the path from outside through proxy and Traefik.",
+  "blurb_2": "And the state afterwards, honestly: no audit device, the root token sitting as a file in the pod, a <span class=\"mono\">service_registration</span> block that failed with <span class=\"mono\">403</span> every five seconds for 22 hours. Plus the hardening that follows – in the order that rules out a lockout.",
+  "code": "<span class=\"c\">-- The one line that makes backups possible at all</span>\nstorage <span class=\"a\">\"raft\"</span> {\n  path = \"/openbao/data\"\n}",
+  "steps": "      <div class=\"step\"><div class=\"k\">01</div><div class=\"t\">Helm</div><div class=\"d\">values, standalone, Raft</div></div>\n      <div class=\"step\"><div class=\"k\">02</div><div class=\"t\">init</div><div class=\"d\">5 keys, 1 root token</div></div>\n      <div class=\"step\"><div class=\"k\">03</div><div class=\"t\">unseal</div><div class=\"d\">×3, after every restart</div></div>\n      <div class=\"step hot\"><div class=\"k\">04</div><div class=\"t\">K8s auth</div><div class=\"d\">TokenReview at the API server</div></div>\n      <div class=\"step\"><div class=\"k\">05</div><div class=\"t\">Ingress</div><div class=\"d\">proxy → Traefik → service</div></div>\n      <div class=\"step\"><div class=\"k\">06</div><div class=\"t\">Harden</div><div class=\"d\">audit, admin, revoke root</div></div>",
+  "spec": "      <tr><td>kubernetes</td><td>RKE2 v1.36 · Traefik · Longhorn</td></tr>\n      <tr><td>openbao</td><td>2.6.2 · chart 0.29.4 · raft</td></tr>\n      <tr><td>helm</td><td>3.16 · standalone</td></tr>\n      <tr><td>auth</td><td>kubernetes · TokenReview</td></tr>\n      <tr><td>storage</td><td>10Gi PVC · Retain</td></tr>",
+  "colophon": "__PAGES__ pages · 7 parts · 2 appendices<br>Deep dive: <b>Vault in Practice</b><br>leanpub.com/vault-in-practice<br>Set in Inter Tight, Inter and JetBrains Mono.<br>All output is real terminal output."
+}

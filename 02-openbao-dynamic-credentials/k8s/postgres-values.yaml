@@ -1,0 +1,18 @@
+auth:
+  postgresPassword: "postgres123"
+  username: "demo"
+  password: "demo123"
+  database: "demodb"
+
+primary:
+  persistence:
+    enabled: true
+    size: 10Gi
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi

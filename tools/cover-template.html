@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="{{lang}}">
+<head>
+<meta charset="utf-8">
+<title>Cover</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;600;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #F6F7F9;
+    --ink: #0B0D12;
+    --muted: #6B7280;
+    --hair: #D9DDE3;
+    --accent: #2547F4;
+    --accent-soft: #E3E8FF;
+  }
+  @page { size: A4; margin: 0; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--paper); color: var(--ink); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: "Inter", system-ui, sans-serif; font-feature-settings: "ss01", "cv11"; }
+
+  .page {
+    position: relative;
+    width: 210mm; height: 297mm;
+    overflow: hidden;
+    page-break-after: always;
+    background-color: var(--paper);
+    background-image: radial-gradient(var(--hair) 0.55px, transparent 0.6px);
+    background-size: 6mm 6mm;
+    background-position: 8mm 8mm;
+  }
+  .page:last-child { page-break-after: auto; }
+
+  .mono { font-family: "JetBrains Mono", ui-monospace, Menlo, monospace; }
+  .eyebrow {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 8.5pt; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* ───────── front ───────── */
+  .front { padding: 18mm 16mm 16mm; display: flex; flex-direction: column; }
+  .front .head { display: flex; justify-content: space-between; align-items: baseline; }
+
+  .stack { margin-top: 26mm; }
+  .stack .w {
+    font-family: "Inter Tight", "Inter", sans-serif; font-weight: 700;
+    font-size: 78pt; line-height: 0.9; letter-spacing: -0.05em;
+    text-transform: uppercase; white-space: nowrap;
+  }
+  .stack .w.accent { color: var(--accent); }
+
+  .tag {
+    margin-top: 10mm; font-size: 12.5pt; line-height: 1.4; color: var(--muted);
+    max-width: 118mm; font-weight: 400;
+  }
+
+  .diagram { margin-top: auto; width: 128mm; height: auto; display: block; }
+
+  .front .foot {
+    margin-top: 12mm; padding-top: 4mm; border-top: 1px solid var(--ink);
+    display: flex; justify-content: space-between; align-items: baseline;
+  }
+  .front .foot .author { font-family: "Inter Tight", sans-serif; font-weight: 600; font-size: 12pt; letter-spacing: -0.01em; }
+
+  /* ───────── back ───────── */
+  .back { padding: 18mm 18mm 16mm; display: flex; flex-direction: column; }
+  .back .blurb { margin-top: 18mm; max-width: 148mm; }
+  .back .blurb h2 {
+    font-family: "Inter Tight", sans-serif; font-weight: 600; font-size: 20pt;
+    line-height: 1.15; letter-spacing: -0.025em; margin-bottom: 6mm;
+  }
+  .back .blurb p { font-size: 10.5pt; line-height: 1.55; color: #2A2E37; margin-bottom: 3.5mm; }
+
+  .flow { margin-top: 14mm; }
+  .flow .rail { position: relative; display: grid; grid-template-columns: repeat(6, 1fr); gap: 4mm; }
+  .flow .rail::before {
+    content: ""; position: absolute; left: 0; right: 0; top: 1.1mm; height: 1px; background: var(--ink);
+  }
+  .flow .step { position: relative; padding-top: 5mm; }
+  .flow .step::before {
+    content: ""; position: absolute; top: 0; left: 0; width: 2.2mm; height: 2.2mm;
+    border-radius: 50%; background: var(--paper); border: 1px solid var(--ink);
+  }
+  .flow .step.hot::before { background: var(--accent); border-color: var(--accent); }
+  .flow .step .k { font-family: "JetBrains Mono", monospace; font-size: 7.5pt; color: var(--muted); letter-spacing: 0.06em; }
+  .flow .step .t { font-family: "Inter Tight", sans-serif; font-weight: 600; font-size: 9.5pt; line-height: 1.25; margin-top: 1mm; letter-spacing: -0.01em; }
+  .flow .step .d { font-size: 8pt; line-height: 1.35; color: var(--muted); margin-top: 1.2mm; }
+
+  .spec { margin-top: auto; display: grid; grid-template-columns: 1.4fr 1fr; gap: 10mm; align-items: end; }
+  .spec table { border-collapse: collapse; font-family: "JetBrains Mono", monospace; font-size: 8.5pt; }
+  .spec td { padding: 1.4mm 0; border-bottom: 1px solid var(--hair); vertical-align: top; }
+  .spec td { white-space: nowrap; }
+  .spec td:first-child { color: var(--muted); padding-right: 6mm; }
+  .spec .colophon { font-size: 8.5pt; line-height: 1.5; color: var(--muted); text-align: right; }
+  .spec .colophon b { color: var(--ink); font-weight: 500; }
+
+  .back .foot {
+    margin-top: 10mm; padding-top: 4mm; border-top: 1px solid var(--ink);
+    display: flex; justify-content: space-between; align-items: baseline;
+  }
+  .sql {
+    font-family: "JetBrains Mono", monospace; font-size: 8.5pt; color: var(--ink);
+    background: #fff; border: 1px solid var(--hair); border-radius: 2mm; padding: 4mm 5mm;
+    line-height: 1.5; white-space: pre; margin-top: 10mm; max-width: 148mm;
+  }
+  .sql .c { color: var(--muted); }
+  .sql .a { color: var(--accent); font-weight: 600; }
+</style>
+</head>
+<body>
+
+<!-- ───────────── FRONT ───────────── -->
+<section class="page front">
+  <div class="head">
+    <span class="eyebrow">{{series}}</span>
+    <span class="eyebrow">{{topics}}</span>
+  </div>
+
+  <div class="stack">
+    <div class="w">{{w1}}</div>
+    <div class="w">{{w2}}</div>
+    <div class="w accent">{{w3}}</div>
+  </div>
+
+  <p class="tag">{{tagline}}</p>
+
+  {{diagram}}
+
+  <div class="foot">
+    <span class="author">{{author}}</span>
+    <span class="eyebrow">{{date}}</span>
+  </div>
+</section>
+
+<!-- ───────────── BACK ───────────── -->
+<section class="page back">
+
+  <div class="blurb">
+    <h2>{{blurb_title}}</h2>
+    <p>{{blurb_1}}</p>
+    <p>{{blurb_2}}</p>
+  </div>
+
+  <div class="sql">{{code}}</div>
+
+  <div class="flow">
+    <div class="rail">
+{{steps}}
+    </div>
+  </div>
+
+  <div class="spec">
+    <table>
+{{spec}}
+    </table>
+    <div class="colophon">
+      {{colophon}}
+    </div>
+  </div>
+
+  <div class="foot">
+    <span class="eyebrow">{{series}}</span>
+    <span class="eyebrow">{{author}} · {{year}}</span>
+  </div>
+</section>
+
+</body>
+</html>

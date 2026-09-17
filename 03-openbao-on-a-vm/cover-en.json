@@ -1,0 +1,20 @@
+{
+  "author": "Thomas Zachmann",
+  "year": "2026",
+  "lang": "en",
+  "series": "Field Notes · Nº 3",
+  "topics": "OpenBao · Ansible · OpenTofu",
+  "date": "September 2026",
+  "w1": "OpenBao",
+  "w2": "on a",
+  "w3": "single VM",
+  "tagline": "A single node with Ansible and OpenTofu: installation, bootstrap, snapshots – and a disaster recovery you have rehearsed.",
+  "diagram": "<svg class=\"diagram\" viewBox=\"0 0 300 70\" xmlns=\"http://www.w3.org/2000/svg\" aria-hidden=\"true\"><g stroke=\"#0B0D12\" stroke-width=\"1\" fill=\"none\"><line x1=\"30\" y1=\"20\" x2=\"150\" y2=\"20\"/><line x1=\"150\" y1=\"20\" x2=\"270\" y2=\"20\"/><line x1=\"150\" y1=\"20\" x2=\"150\" y2=\"56\"/></g><circle cx=\"30\" cy=\"20\" r=\"3.2\" fill=\"#0B0D12\"/><circle cx=\"150\" cy=\"20\" r=\"3.2\" fill=\"#2547F4\"/><circle cx=\"270\" cy=\"20\" r=\"3.2\" fill=\"#0B0D12\"/><circle cx=\"150\" cy=\"56\" r=\"3.2\" fill=\"#0B0D12\"/><g font-family=\"JetBrains Mono, monospace\" font-size=\"6.2\" fill=\"#6B7280\" letter-spacing=\"0.5\"><text x=\"30\" y=\"34\" text-anchor=\"middle\">proxy</text><text x=\"150\" y=\"9\" text-anchor=\"middle\">openbao-vm</text><text x=\"270\" y=\"34\" text-anchor=\"middle\">nas</text><text x=\"158\" y=\"58.5\" text-anchor=\"start\">snapshot · daily</text></g></svg>",
+  "blurb_title": "A secrets store has to do two things at once: be secure, and come back.",
+  "blurb_1": "This guide builds OpenBao as a single node on a VM – Raft, Shamir, TLS, systemd hardening, daily snapshots to a NAS. Ansible installs, OpenTofu configures, and the few steps that have to stay manual are laid out as a runbook.",
+  "blurb_2": "With what OpenBao does differently from Vault: no APT repo, no mlock, no <span class=\"mono\">snapshot inspect</span>, no unauthenticated <span class=\"mono\">generate-root</span> endpoints. And a disaster recovery onto an empty VM that explains why it takes two sets of unseal keys, one after the other.",
+  "code": "<span class=\"c\">-- The order that rules out a lockout</span>\ntofu apply                          <span class=\"c\"># audit, policies, admin</span>\nbao operator generate-root -init    <span class=\"c\"># prove break glass</span>\nbao operator generate-root -cancel\n<span class=\"a\">bao token revoke -self</span>              <span class=\"c\"># only now</span>",
+  "steps": "      <div class=\"step\"><div class=\"k\">01</div><div class=\"t\">Ansible</div><div class=\"d\">.deb, TLS, systemd, timers</div></div>\n      <div class=\"step\"><div class=\"k\">02</div><div class=\"t\">init · unseal</div><div class=\"d\">Shamir 5/3, by hand</div></div>\n      <div class=\"step\"><div class=\"k\">03</div><div class=\"t\">OpenTofu</div><div class=\"d\">audit, policies, admin</div></div>\n      <div class=\"step hot\"><div class=\"k\">04</div><div class=\"t\">Prove</div><div class=\"d\">generate-root -init / -cancel</div></div>\n      <div class=\"step\"><div class=\"k\">05</div><div class=\"t\">Revoke root</div><div class=\"d\">token revoke -self</div></div>\n      <div class=\"step\"><div class=\"k\">06</div><div class=\"t\">Restore</div><div class=\"d\">-force, then original keys</div></div>",
+  "spec": "      <tr><td>ubuntu</td><td>24.04 LTS · 1 vCPU · 2 GB</td></tr>\n      <tr><td>openbao</td><td>2.6.2 · .deb · raft</td></tr>\n      <tr><td>ansible</td><td>2.17 · layer 1</td></tr>\n      <tr><td>opentofu</td><td>≥ 1.11 · layer 2 · encrypted state</td></tr>\n      <tr><td>backup</td><td>systemd timer · NFS</td></tr>",
+  "colophon": "__PAGES__ pages · 7 parts · 2 appendices<br>Deep dive: <b>Vault in Practice</b><br>leanpub.com/vault-in-practice<br>Set in Inter Tight, Inter and JetBrains Mono.<br>All output is real terminal output."
+}

@@ -1,0 +1,20 @@
+{
+  "author": "Thomas Zachmann",
+  "year": "2026",
+  "lang": "de",
+  "series": "Field Notes · Nº 2",
+  "topics": "OpenBao · PostgreSQL · ESO",
+  "date": "September 2026",
+  "w1": "Dynamische",
+  "w2": "Datenbank",
+  "w3": "Credentials",
+  "tagline": "Kurzlebige PostgreSQL-Zugänge mit OpenBao und dem External Secrets Operator auf Kubernetes.",
+  "diagram": "<svg class=\"diagram\" viewBox=\"0 0 300 70\" xmlns=\"http://www.w3.org/2000/svg\" aria-hidden=\"true\"><g stroke=\"#0B0D12\" stroke-width=\"1\" fill=\"none\"><line x1=\"30\" y1=\"20\" x2=\"150\" y2=\"20\"/><line x1=\"150\" y1=\"20\" x2=\"270\" y2=\"20\"/><line x1=\"150\" y1=\"20\" x2=\"150\" y2=\"56\"/></g><circle cx=\"30\" cy=\"20\" r=\"3.2\" fill=\"#0B0D12\"/><circle cx=\"150\" cy=\"20\" r=\"3.2\" fill=\"#2547F4\"/><circle cx=\"270\" cy=\"20\" r=\"3.2\" fill=\"#0B0D12\"/><circle cx=\"150\" cy=\"56\" r=\"3.2\" fill=\"#0B0D12\"/><g font-family=\"JetBrains Mono, monospace\" font-size=\"6.2\" fill=\"#6B7280\" letter-spacing=\"0.5\"><text x=\"30\" y=\"34\" text-anchor=\"middle\">serviceaccount</text><text x=\"150\" y=\"9\" text-anchor=\"middle\">openbao</text><text x=\"270\" y=\"34\" text-anchor=\"middle\">postgres</text><text x=\"158\" y=\"58.5\" text-anchor=\"start\">miniflux · 1h</text></g></svg>",
+  "blurb_title": "Die Anwendung bekommt kein festes Passwort mehr. Sie bekommt einen Benutzer, der in einer Stunde nicht mehr existiert.",
+  "blurb_1": "Dieser Leitfaden dokumentiert einen vollständigen, real durchgeführten Aufbau: OpenBao erzeugt auf Anfrage PostgreSQL-Benutzer mit kurzer Lebensdauer, der External Secrets Operator legt sie als Kubernetes-Secret ab, und Miniflux liest sie wie jede andere Umgebungsvariable – ohne je von OpenBao zu wissen.",
+  "blurb_2": "Alle Kommandos, alle Manifeste, alle SQL-Statements. Und alle Fehler, die unterwegs passiert sind: <span class=\"mono\">permission denied for schema public</span>, <span class=\"mono\">is not an allowed role</span>, das <span class=\"mono\">403</span>, das nur ein fehlendes Login war. Jeder davon ist eine Schranke, die absichtlich existiert.",
+  "code": "<span class=\"c\">-- Der Kern des Leitfadens in zwei Zeilen</span>\nCREATE ROLE \"{{name}}\" WITH LOGIN PASSWORD '{{password}}'\n  VALID UNTIL '{{expiration}}' <span class=\"a\">IN ROLE miniflux</span>;\nALTER ROLE \"{{name}}\" <span class=\"a\">SET ROLE miniflux</span>;",
+  "steps": "      <div class=\"step\"><div class=\"k\">01</div><div class=\"t\">Sync</div><div class=\"d\">ESO reconciled das ExternalSecret</div></div>\n      <div class=\"step\"><div class=\"k\">02</div><div class=\"t\">Login</div><div class=\"d\">ServiceAccount-Token an OpenBao</div></div>\n      <div class=\"step\"><div class=\"k\">03</div><div class=\"t\">TokenReview</div><div class=\"d\">OpenBao fragt den API-Server</div></div>\n      <div class=\"step hot\"><div class=\"k\">04</div><div class=\"t\">CREATE ROLE</div><div class=\"d\">Neuer User, gültig für 1h</div></div>\n      <div class=\"step\"><div class=\"k\">05</div><div class=\"t\">Secret</div><div class=\"d\">DATABASE_URL im Namespace</div></div>\n      <div class=\"step\"><div class=\"k\">06</div><div class=\"t\">SET ROLE</div><div class=\"d\">Session läuft als Owner-Rolle</div></div>",
+  "spec": "      <tr><td>kubernetes</td><td>RKE2 · Traefik · Longhorn</td></tr>\n      <tr><td>openbao</td><td>2.6.2 · chart 0.29.4 · raft</td></tr>\n      <tr><td>postgresql</td><td>18.6 · bitnami chart 18.11.3</td></tr>\n      <tr><td>external-secrets</td><td>2.10.0 · VaultDynamicSecret</td></tr>\n      <tr><td>miniflux</td><td>2.3.3</td></tr>",
+  "colophon": "__PAGES__ Seiten · 7 Teile · 2 Anhänge<br>Vertiefung: <b>Vault in Practice</b><br>leanpub.com/vault-in-practice<br>Gesetzt in Inter Tight, Inter und JetBrains Mono.<br>Alle Ausgaben sind echte Terminal-Ausgaben."
+}

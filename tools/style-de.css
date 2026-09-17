@@ -1,0 +1,27 @@
+@page { size: A4; margin: 22mm 20mm 22mm 20mm; }
+html { font-size: 10.5pt; }
+body { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; line-height: 1.45; color: #1a1a1a; max-width: none; margin: 0; }
+header#title-block-header { page-break-after: always; padding-top: 30vh; }
+header#title-block-header h1.title { font-size: 26pt; margin-bottom: 0.3em; }
+header#title-block-header p.subtitle { font-size: 13pt; color: #444; margin-top: 0; }
+header#title-block-header p.author, header#title-block-header p.date { color: #666; }
+nav#TOC { page-break-after: always; }
+nav#TOC > ul { list-style: none; padding-left: 0; }
+nav#TOC ul ul { list-style: none; padding-left: 1.4em; }
+nav#TOC li { margin: 0.25em 0; }
+nav#TOC a { text-decoration: none; color: #1a1a1a; }
+nav#TOC::before { content: "Inhalt"; display: block; font-size: 18pt; font-weight: bold; margin-bottom: 0.8em; }
+h1 { font-size: 20pt; page-break-before: always; margin-top: 0; padding-bottom: 0.25em; border-bottom: 2px solid #1a1a1a; }
+h2 { font-size: 14pt; margin-top: 1.6em; }
+h3 { font-size: 11.5pt; margin-top: 1.3em; }
+h1, h2, h3 { page-break-after: avoid; }
+p, li { orphans: 3; widows: 3; }
+a { color: #0b5394; }
+code { font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 0.88em; }
+pre { background: #f4f4f4; border: 1px solid #ddd; border-radius: 3px; padding: 0.6em 0.8em; overflow-x: auto; white-space: pre-wrap; word-break: break-all; page-break-inside: avoid; font-size: 8.6pt; line-height: 1.35; }
+pre code { font-size: 1em; }
+table { border-collapse: collapse; width: 100%; margin: 1em 0; font-size: 9.5pt; page-break-inside: avoid; }
+th, td { border: 1px solid #ccc; padding: 0.35em 0.5em; text-align: left; vertical-align: top; }
+th { background: #eee; }
+blockquote { border-left: 3px solid #bbb; margin-left: 0; padding-left: 1em; color: #444; }
+div.sourceCode { page-break-inside: avoid; }

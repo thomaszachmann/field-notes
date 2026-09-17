@@ -1,0 +1,4 @@
+# build intermediates (html, single-part pdfs) - the merged PDFs are committed
+*/build/
+tools/.venv/
+.DS_Store

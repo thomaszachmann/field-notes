@@ -1,0 +1,74 @@
+# Values for the OpenBao Helm chart (openbao/openbao).
+#
+# Deliberately NOT set: anything that touches key material. init and unseal
+# are manual.
+
+global:
+  # TLS is terminated at the reverse proxy in front of the ingress. Inside
+  # the cluster the listener is plain HTTP, so the chart must not add
+  # https:// to BAO_ADDR / probes.
+  tlsDisable: true
+
+# vault-k8s sidecar injector (hashicorp image). Not needed for a plain
+# secret store; every extra controller is an extra attack surface.
+injector:
+  enabled: false
+
+server:
+  # Standalone, 1 replica, no auto-unseal.
+  standalone:
+    enabled: true
+    config: |
+      ui = true
+
+      listener "tcp" {
+        address         = "[::]:8200"
+        cluster_address = "[::]:8201"
+        tls_disable     = 1
+      }
+
+      # Raft instead of the chart default "file": makes 'bao operator raft
+      # snapshot' available. api_addr and cluster_addr come from
+      # BAO_API_ADDR / BAO_CLUSTER_ADDR, which the chart sets on the
+      # StatefulSet also in standalone mode.
+      storage "raft" {
+        path = "/openbao/data"
+      }
+
+      # No service_registration "kubernetes" here: in standalone mode the
+      # chart renders no Role for patching the pod, so the registration
+      # fails with 403 every five seconds and changes nothing.
+
+  dataStorage:
+    enabled: true
+    size: 10Gi
+    # Explicit, even if it is the cluster default: a changed default must
+    # not silently move the Raft data somewhere else.
+    storageClass: longhorn
+
+  # Stated explicitly rather than relying on the k8s default of "Retain":
+  # 'helm uninstall' or a scale-down must never take the Raft data with it.
+  persistentVolumeClaimRetentionPolicy:
+    whenDeleted: Retain
+    whenScaled: Retain
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      memory: 512Mi
+
+  ingress:
+    enabled: true
+    # Explicit, same reasoning as storageClass: a changed cluster default
+    # must not silently hand this Ingress to another controller.
+    ingressClassName: traefik
+    hosts:
+      # Must match the hostname the reverse proxy forwards.
+      - host: bao.example.internal
+        paths: []
+
+ui:
+  enabled: true
+  serviceType: ClusterIP
