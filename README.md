@@ -36,11 +36,12 @@ it all up and rehearses the restore, Nº 8 gives humans a login through Keycloak
 
 | Nº | Working title | Depends on |
 |---|---|---|
-| 6 | [**Auto-Unseal with Transit and a Nitrokey HSM**](openbao/06-auto-unseal/) – transit seal against the VM OpenBao, and `seal "pkcs11"` with a Nitrokey HSM 2 | HSM hardware, VM access |
-| 9 | [**OpenTofu for the Cluster OpenBao**](openbao/09-opentofu-for-the-cluster-openbao/) – every CLI step from Nº 1, 2, 4 and 5 as code | admin login (Nº 1, part VI) |
+| 6 | [**Auto-Unseal with Transit and a Nitrokey HSM**](openbao/06-auto-unseal/) – transit seal against the VM OpenBao, and `seal "pkcs11"` with a Nitrokey HSM 2. Scripts, Proxmox passthrough guide and Ansible changes are prepared | the HSM (arriving), VM access |
+| 9 | [**OpenTofu for the Cluster OpenBao**](openbao/09-opentofu-for-the-cluster-openbao/) – every CLI step from Nº 1, 2, 4, 5, 7 and 8 as code. The configuration is written, validated and carries import blocks for all 26 objects; only the first `tofu plan` is missing | an admin login (Nº 1 part VI or Nº 8) |
 
-Each planned note has a directory with its README, the planned outline and
-the cover copy, but no PDF until it is written.
+Each planned note has a directory with its README, the planned outline, the
+cover copy and everything that could be prepared without the missing piece –
+but no PDF until it has actually been run.
 
 ## What the notes contain – and what they do not
 
@@ -76,9 +77,9 @@ tools/build-all.sh                                   # everything
 ```
 
 Needs `pandoc`, `pdfinfo` (poppler), `python3` and Google Chrome or Chromium.
-`pypdf` is installed into `tools/.venv` on the first run. Web fonts (Inter
-Tight, Inter, JetBrains Mono) are fetched from Google Fonts while the cover
-renders.
+`pypdf` is installed into `tools/.venv` on the first run. The three fonts (Inter
+Tight, Inter, JetBrains Mono – SIL Open Font License) are vendored in
+`tools/fonts/`, so the build needs no network.
 
 The layout is `<series>/<NN>-<slug>/`. Each note directory holds `de.md` /
 `en.md` (the text), `cover-de.json` / `cover-en.json` (the cover copy), and

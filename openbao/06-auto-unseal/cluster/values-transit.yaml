@@ -1,0 +1,26 @@
+# Additions to helm/values.yaml (Field Note 1) for the transit seal.
+server:
+  extraSecretEnvironmentVars:
+    - envName: BAO_SEAL_TOKEN
+      secretName: openbao-transit-token
+      secretKey: BAO_SEAL_TOKEN
+  standalone:
+    config: |
+      ui = true
+      listener "tcp" {
+        address         = "[::]:8200"
+        cluster_address = "[::]:8201"
+        tls_disable     = 1
+      }
+      storage "raft" {
+        path = "/openbao/data"
+      }
+      # The VM OpenBao holds the key that unseals this one. Token from
+      # BAO_SEAL_TOKEN; if the VM is down, this pod stays sealed - that is
+      # the dependency you accept with transit.
+      seal "transit" {
+        address    = "https://bao.example.internal"
+        key_name   = "cluster-unseal"
+        mount_path = "transit/"
+        # token = ...  <- NOT here; BAO_SEAL_TOKEN in the environment
+      }

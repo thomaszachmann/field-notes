@@ -30,14 +30,14 @@ cp "$TOOLS/style-$LANG_.css" "$WORK/"
 PAGES=$(( $(pdfinfo "$WORK/body-$LANG_.pdf" | awk '/^Pages/{print $2}') + 2 ))
 
 # 2. cover
-"$VENV/bin/python" - "$TOOLS/cover-template.html" "$NOTE/cover-$LANG_.json" "$WORK/cover-$LANG_.html" "$PAGES" <<'PY'
+"$VENV/bin/python" - "$TOOLS/cover-template.html" "$NOTE/cover-$LANG_.json" "$WORK/cover-$LANG_.html" "$PAGES" "file://$TOOLS/fonts.css" <<'PY'
 import json, sys, re
-tpl, data, out, pages = sys.argv[1:]
+tpl, data, out, pages, fonts = sys.argv[1:]
 t = open(tpl).read(); d = json.load(open(data))
-t = re.sub(r'\{\{(\w+)\}\}', lambda m: d[m.group(1)], t)
+t = re.sub(r'\{\{(\w+)\}\}', lambda m: d.get(m.group(1), fonts if m.group(1)=="fonts_css" else ""), t)
 open(out, "w").write(t.replace("__PAGES__", pages))
 PY
-"$CHROME" --headless=new --disable-gpu --no-pdf-header-footer --virtual-time-budget=8000 \
+"$CHROME" --headless=new --disable-gpu --no-pdf-header-footer \
   --print-to-pdf="$WORK/cover-$LANG_.pdf" "file://$WORK/cover-$LANG_.html" >/dev/null 2>&1
 
 # 3. merge
