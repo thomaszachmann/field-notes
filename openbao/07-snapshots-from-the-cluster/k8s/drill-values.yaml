@@ -1,0 +1,27 @@
+# Throwaway OpenBao for restore drills. Same storage layout as production
+# (Raft), no ingress, no UI service - reachable only via kubectl exec.
+global:
+  tlsDisable: true
+injector:
+  enabled: false
+server:
+  standalone:
+    enabled: true
+    config: |
+      ui = false
+      listener "tcp" {
+        address         = "[::]:8200"
+        cluster_address = "[::]:8201"
+        tls_disable     = 1
+      }
+      storage "raft" {
+        path = "/openbao/data"
+      }
+  dataStorage:
+    enabled: true
+    size: 2Gi
+    storageClass: longhorn
+  ingress:
+    enabled: false
+ui:
+  enabled: false

@@ -1,0 +1,103 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: openbao-snapshot
+  namespace: openbao
+---
+# MinIO credentials for the job. Dev values, printed on purpose. In a real
+# setup this Secret comes from OpenBao's KV via ExternalSecret (Field Note 4).
+apiVersion: v1
+kind: Secret
+metadata:
+  name: openbao-snapshot-s3
+  namespace: openbao
+type: Opaque
+stringData:
+  MC_HOST_s3: http://openbao-snapshot:openbao-snapshot-123@minio.minio.svc:9000
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: openbao-snapshot-scripts
+  namespace: openbao
+data:
+  # Container 1 (openbao image): log in with the pod's ServiceAccount token,
+  # take the snapshot, verify it the way 'raft snapshot inspect' would.
+  save.sh: |
+    #!/bin/sh
+    set -eu
+    export BAO_ADDR=http://openbao.openbao.svc:8200
+    JWT=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
+    BAO_TOKEN=$(bao write -field=token auth/kubernetes/login role=snapshot jwt="$JWT")
+    export BAO_TOKEN
+    TS=$(date -u +%Y%m%dT%H%M%SZ)
+    OUT=/work/openbao-$TS.snap
+    bao operator raft snapshot save "$OUT"
+    # An OpenBao Raft snapshot is a gzipped tar with meta.json, state.bin and
+    # SHA256SUMS over the two. Recompute and compare - OpenBao has no
+    # 'snapshot inspect'.
+    tar -tzf "$OUT" >/dev/null
+    tar -xzOf "$OUT" SHA256SUMS > /work/expected
+    for f in meta.json state.bin; do
+      have=$(tar -xzOf "$OUT" "$f" | sha256sum | cut -d' ' -f1)
+      want=$(grep " $f\$" /work/expected | cut -d' ' -f1)
+      [ "$have" = "$want" ] || { echo "integrity check failed for $f"; rm -f "$OUT"; exit 1; }
+    done
+    echo "snapshot ok: $OUT ($(wc -c < "$OUT") bytes)"
+    bao token revoke -self >/dev/null 2>&1 || true
+  # Container 2 (mc image): upload. Retention is NOT done here - the mc
+  # image has no grep/sed/awk, and a pipeline in 'sh -e' only reports the
+  # last command's exit code, so a broken prune would pass silently (it did,
+  # once). Retention is a lifecycle rule on the bucket instead:
+  #   mc ilm rule add --expire-days 14 --noncurrent-expire-days 7 local/openbao-snapshots
+  upload.sh: |
+    #!/bin/sh
+    set -eu
+    f=$(ls /work/openbao-*.snap)
+    mc cp "$f" s3/openbao-snapshots/
+    echo "uploaded $(basename "$f"); bucket now:"
+    mc ls s3/openbao-snapshots/
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: openbao-snapshot
+  namespace: openbao
+spec:
+  schedule: "17 3 * * *"          # daily, 03:17 UTC
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      template:
+        spec:
+          serviceAccountName: openbao-snapshot
+          restartPolicy: Never
+          volumes:
+            - name: work
+              emptyDir: {}
+            - name: scripts
+              configMap:
+                name: openbao-snapshot-scripts
+                defaultMode: 0755
+          # save runs first as an init container; only if it succeeds does
+          # the upload container run. Both share /work.
+          initContainers:
+            - name: save
+              image: quay.io/openbao/openbao:2.6.2
+              command: ["/scripts/save.sh"]
+              volumeMounts:
+                - { name: work, mountPath: /work }
+                - { name: scripts, mountPath: /scripts }
+          containers:
+            - name: upload
+              image: quay.io/minio/mc:RELEASE.2024-11-21T17-21-54Z
+              command: ["/scripts/upload.sh"]
+              envFrom:
+                - secretRef:
+                    name: openbao-snapshot-s3
+              volumeMounts:
+                - { name: work, mountPath: /work }
+                - { name: scripts, mountPath: /scripts }

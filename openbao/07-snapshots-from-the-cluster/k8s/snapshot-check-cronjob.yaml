@@ -1,0 +1,33 @@
+# Fails - visibly, as a failed Job - if no snapshot younger than 26 h is in
+# the bucket. Checks the RESULT, not the timer: the classic backup failure
+# is a job that runs every day and fails every day.
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: openbao-snapshot-check
+  namespace: openbao
+spec:
+  schedule: "0 9 * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      template:
+        spec:
+          restartPolicy: Never
+          containers:
+            - name: check
+              image: quay.io/minio/mc:RELEASE.2024-11-21T17-21-54Z
+              envFrom:
+                - secretRef:
+                    name: openbao-snapshot-s3
+              command:
+                - sh
+                - -c
+                - |
+                  set -eu
+                  n=$(mc find s3/openbao-snapshots --name "openbao-*.snap" --newer-than 26h | wc -l)
+                  echo "snapshots younger than 26h: $n"
+                  [ "$n" -gt 0 ] || { echo "STALE: no recent snapshot"; exit 1; }

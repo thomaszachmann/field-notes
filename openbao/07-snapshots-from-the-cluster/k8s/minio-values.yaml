@@ -1,0 +1,38 @@
+# MinIO as the S3 target for OpenBao snapshots. Standalone, one PVC.
+# Root credentials and the snapshot user are dev values, printed on purpose.
+mode: standalone
+replicas: 1
+persistence:
+  enabled: true
+  size: 20Gi
+  storageClass: longhorn
+resources:
+  requests:
+    memory: 512Mi
+rootUser: minioadmin
+rootPassword: minioadmin123
+
+# The bucket, and a user that may only touch that bucket.
+buckets:
+  - name: openbao-snapshots
+    policy: none
+    purge: false
+    # keep every object version - a snapshot overwritten by a broken one
+    # must stay recoverable
+    versioning: true
+policies:
+  - name: openbao-snapshots-rw
+    statements:
+      - resources:
+          - "arn:aws:s3:::openbao-snapshots"
+        actions: ["s3:ListBucket", "s3:GetBucketLocation"]
+      - resources:
+          - "arn:aws:s3:::openbao-snapshots/*"
+        actions: ["s3:PutObject", "s3:GetObject", "s3:DeleteObject"]
+users:
+  - accessKey: openbao-snapshot
+    secretKey: openbao-snapshot-123
+    policy: openbao-snapshots-rw
+
+consoleService:
+  type: ClusterIP

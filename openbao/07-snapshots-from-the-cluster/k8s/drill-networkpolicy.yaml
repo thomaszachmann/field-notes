@@ -1,0 +1,23 @@
+# A restored instance holds every lease of the original - database users,
+# tokens, certificates. It must never reach the real backends. Deny all
+# egress except DNS; ingress only from the same namespace (kubectl exec
+# needs none).
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: drill-isolation
+  namespace: openbao-drill
+spec:
+  podSelector: {}
+  policyTypes: [Ingress, Egress]
+  ingress:
+    - from:
+        - podSelector: {}
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+      ports:
+        - port: 53
+          protocol: UDP
