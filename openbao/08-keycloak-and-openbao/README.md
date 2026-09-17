@@ -1,4 +1,4 @@
-# OpenBao Field Notes · Nº 8 – Keycloak and OpenBao
+# OpenBao Field Notes · Nº 8 of 9 – Keycloak and OpenBao
 
 **Status: planned.** No PDF yet.
 

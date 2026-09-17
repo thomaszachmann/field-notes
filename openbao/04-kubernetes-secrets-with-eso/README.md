@@ -1,4 +1,4 @@
-# OpenBao Field Notes · Nº 4 – Kubernetes Secrets with ESO and OpenBao
+# OpenBao Field Notes · Nº 4 of 9 – Kubernetes Secrets with ESO and OpenBao
 
 Static secrets from the KV v2 engine into the cluster with the External
 Secrets Operator: `data`, `dataFrom.extract`, `dataFrom.find`, `template`,

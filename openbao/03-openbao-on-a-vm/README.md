@@ -1,4 +1,4 @@
-# OpenBao Field Notes · Nº 3 – OpenBao on a VM
+# OpenBao Field Notes · Nº 3 of 9 – OpenBao on a VM
 
 A single node with Ansible and OpenTofu: installation, bootstrap runbook, snapshots, disaster recovery. The Ansible role and OpenTofu configuration are quoted in the text; the note is self-contained.
 

@@ -1,4 +1,4 @@
-# OpenBao Field Notes · Nº 2 – Dynamic Database Credentials with OpenBao
+# OpenBao Field Notes · Nº 2 of 9 – Dynamic Database Credentials with OpenBao
 
 Short-lived PostgreSQL access through the database secrets engine and the External Secrets Operator, Miniflux as the worked example. Includes the ESO and Miniflux manifests and the Postgres chart values in `k8s/`.
 

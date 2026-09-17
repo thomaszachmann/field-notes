@@ -13,7 +13,7 @@ Every note is available in German and English as a PDF. The Markdown sources,
 cover data and manifests are in this repository; the PDFs are built from
 them with `tools/build.sh`.
 
-## OpenBao
+## OpenBao – nine notes, five published
 
 | Nº | Title | Read |
 |---|---|---|

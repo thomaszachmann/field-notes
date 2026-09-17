@@ -1,4 +1,4 @@
-# OpenBao Field Notes · Nº 6 – Auto-Unseal with Transit and a Nitrokey HSM
+# OpenBao Field Notes · Nº 6 of 9 – Auto-Unseal with Transit and a Nitrokey HSM
 
 **Status: planned.** No PDF yet.
 

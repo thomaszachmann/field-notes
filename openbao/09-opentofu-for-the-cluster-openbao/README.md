@@ -1,4 +1,4 @@
-# OpenBao Field Notes · Nº 9 – OpenTofu for the Cluster OpenBao
+# OpenBao Field Notes · Nº 9 of 9 – OpenTofu for the Cluster OpenBao
 
 **Status: planned.** No PDF yet.
 

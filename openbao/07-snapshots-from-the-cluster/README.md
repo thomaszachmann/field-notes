@@ -1,4 +1,4 @@
-# OpenBao Field Notes · Nº 7 – Raft Snapshots from the Cluster
+# OpenBao Field Notes · Nº 7 of 9 – Raft Snapshots from the Cluster
 
 **Status: planned.** No PDF yet.
 

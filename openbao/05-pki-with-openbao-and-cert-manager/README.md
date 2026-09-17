@@ -1,4 +1,4 @@
-# OpenBao Field Notes · Nº 5 – PKI with OpenBao and cert-manager
+# OpenBao Field Notes · Nº 5 of 9 – PKI with OpenBao and cert-manager
 
 Root and intermediate CA in OpenBao, a role that dictates what gets signed,
 cert-manager as the client that only sends CSRs. Ingress via annotation,

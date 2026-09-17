@@ -1,4 +1,4 @@
-# OpenBao Field Notes · Nº 1 – OpenBao on Kubernetes
+# OpenBao Field Notes · Nº 1 of 9 – OpenBao on Kubernetes
 
 Helm, Raft, init and unseal, Kubernetes auth – and what is still missing afterwards. Includes the sanitized Helm values in `k8s/`.
 
