@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: miniflux
+  namespace: demo
+spec:
+  selector:
+    app: miniflux
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+---
+# ingress-shim: the annotation makes cert-manager create a Certificate for
+# every host in spec.tls, keyed on the secretName. No Certificate object
+# needs to be written by hand.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: miniflux
+  namespace: demo
+  annotations:
+    cert-manager.io/cluster-issuer: openbao-cluster-internal
+    cert-manager.io/private-key-algorithm: ECDSA     # the role requires EC
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - miniflux.demo.example.internal
+      secretName: miniflux-ingress-tls
+  rules:
+    - host: miniflux.demo.example.internal
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: miniflux
+                port:
+                  number: 8080

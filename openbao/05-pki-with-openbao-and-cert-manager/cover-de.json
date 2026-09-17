@@ -1,0 +1,20 @@
+{
+  "author": "Thomas Zachmann",
+  "year": "2026",
+  "date": "September 2026",
+  "series": "OpenBao Field Notes · Nº 5",
+  "topics": "OpenBao · PKI · cert-manager",
+  "lang": "de",
+  "w1": "Interne",
+  "w2": "PKI mit",
+  "w3": "OpenBao",
+  "tagline": "Eine interne CA, deren Schlüssel den Tresor nie verlässt: Root und Intermediate in OpenBao, Zertifikate per cert-manager, Erneuerung und Widerruf.",
+  "diagram": "<svg class=\"diagram\" viewBox=\"0 0 300 70\" xmlns=\"http://www.w3.org/2000/svg\" aria-hidden=\"true\"><g stroke=\"#0B0D12\" stroke-width=\"1\" fill=\"none\"><line x1=\"30\" y1=\"20\" x2=\"150\" y2=\"20\"/><line x1=\"150\" y1=\"20\" x2=\"270\" y2=\"20\"/><line x1=\"150\" y1=\"20\" x2=\"150\" y2=\"56\"/></g><circle cx=\"30\" cy=\"20\" r=\"3.2\" fill=\"#0B0D12\"/><circle cx=\"150\" cy=\"20\" r=\"3.2\" fill=\"#2547F4\"/><circle cx=\"270\" cy=\"20\" r=\"3.2\" fill=\"#0B0D12\"/><circle cx=\"150\" cy=\"56\" r=\"3.2\" fill=\"#0B0D12\"/><g font-family=\"JetBrains Mono, monospace\" font-size=\"6.2\" fill=\"#6B7280\" letter-spacing=\"0.5\"><text x=\"30\" y=\"34\" text-anchor=\"middle\">cert-manager</text><text x=\"150\" y=\"9\" text-anchor=\"middle\">pki_int</text><text x=\"270\" y=\"34\" text-anchor=\"middle\">traefik</text><text x=\"158\" y=\"58.5\" text-anchor=\"start\">root · pki/  (nie berührt)</text></g></svg>",
+  "blurb_title": "Der Schlüssel der CA liegt als Kubernetes-Secret in etcd. Jeder mit get secrets kann Zertifikate ausstellen. Niemand erfährt es.",
+  "blurb_1": "Dieser Leitfaden verlegt die CA nach OpenBao: Root und Intermediate als getrennte Mounts, eine Rolle, die Domains, Schlüsseltyp und Laufzeit vorgibt, und cert-manager, der nur noch CSRs schickt. Ingress per Annotation, Service-zu-Service per Certificate, Kette gegen Traefik geprüft.",
+  "blurb_2": "Mit zwei Ablehnungen, von denen die erste nicht die erwartete war: <span class=\"mono\">role requires keys of type ec</span> kam vor <span class=\"mono\">not allowed by this role</span>. Dazu Erneuerung mit neuem Schlüssel, Widerruf auf der CRL, und warum <span class=\"mono\">set-signed</span> zwei Issuer erzeugt.",
+  "code": "<span class=\"c\">-- Das Einzige, was OpenBao je verlässt: ein CSR</span>\nbao write -field=csr pki_int/intermediate/generate/<span class=\"a\">internal</span> …\nbao write pki/root/sign-intermediate csr=@pki_int.csr …\nbao write pki_int/intermediate/set-signed certificate=@pki_int.pem",
+  "steps": "      <div class=\"step\"><div class=\"k\">01</div><div class=\"t\">Root</div><div class=\"d\">pki/, 10 Jahre, EC P-256</div></div>\n      <div class=\"step\"><div class=\"k\">02</div><div class=\"t\">Intermediate</div><div class=\"d\">CSR raus, Zertifikat rein</div></div>\n      <div class=\"step hot\"><div class=\"k\">03</div><div class=\"t\">Rolle</div><div class=\"d\">Domains, key_type, ttl</div></div>\n      <div class=\"step\"><div class=\"k\">04</div><div class=\"t\">ClusterIssuer</div><div class=\"d\">SA-Token, sign/…</div></div>\n      <div class=\"step\"><div class=\"k\">05</div><div class=\"t\">Certificate</div><div class=\"d\">Secret mit Leaf + Kette</div></div>\n      <div class=\"step\"><div class=\"k\">06</div><div class=\"t\">Revoke</div><div class=\"d\">Serial → CRL</div></div>",
+  "spec": "      <tr><td>openbao</td><td>2.6.2 · pki/ + pki_int/</td></tr>\n      <tr><td>cert-manager</td><td>v1.20.2 · issuer vault</td></tr>\n      <tr><td>traefik</td><td>RKE2 chart 40.1 · SNI</td></tr>\n      <tr><td>keys</td><td>EC P-256 · 10y / 5y / 30d</td></tr>\n      <tr><td>policy</td><td>1 Zeile · sign only</td></tr>",
+  "colophon": "__PAGES__ Seiten · 7 Teile · 2 Anhänge<br>Vertiefung: <b>Vault in Practice</b><br>leanpub.com/vault-in-practice<br>Gesetzt in Inter Tight, Inter und JetBrains Mono.<br>Alle Ausgaben sind echte Terminal-Ausgaben.<br>CC BY 4.0 · Weitergabe erlaubt · ohne Gewähr"
+}

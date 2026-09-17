@@ -1,0 +1,15 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: not-allowed
+  namespace: demo
+spec:
+  secretName: not-allowed-tls
+  privateKey:
+    algorithm: ECDSA
+    size: 256
+  dnsNames:
+    - miniflux.example.com     # not in the role's allowed_domains
+  issuerRef:
+    kind: ClusterIssuer
+    name: openbao-cluster-internal
