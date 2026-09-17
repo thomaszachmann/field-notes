@@ -1,0 +1,20 @@
+{
+  "author": "Thomas Zachmann",
+  "year": "2026",
+  "date": "2026",
+  "lang": "en",
+  "series": "OpenBao Field Notes · Nº 7",
+  "topics": "OpenBao · Raft · S3",
+  "w1": "Raft",
+  "w2": "Snapshots",
+  "w3": "OpenBao",
+  "tagline": "A CronJob with its own identity, verified archives to S3, and a restore you have actually rehearsed.",
+  "diagram": "<svg class=\"diagram\" viewBox=\"0 0 300 70\" xmlns=\"http://www.w3.org/2000/svg\"></svg>",
+  "blurb_title": "A CronJob that logs in with its ServiceAccount, verifies the snapshot and writes it to S3 – and a restore drill on a throwaway cluster",
+  "blurb_1": "",
+  "blurb_2": "",
+  "code": "",
+  "steps": "      <div class=\"step\"><div class=\"k\">01</div><div class=\"t\"></div><div class=\"d\"></div></div>\n      <div class=\"step\"><div class=\"k\">02</div><div class=\"t\"></div><div class=\"d\"></div></div>\n      <div class=\"step\"><div class=\"k\">03</div><div class=\"t\"></div><div class=\"d\"></div></div>\n      <div class=\"step\"><div class=\"k\">04</div><div class=\"t\"></div><div class=\"d\"></div></div>\n      <div class=\"step\"><div class=\"k\">05</div><div class=\"t\"></div><div class=\"d\"></div></div>\n      <div class=\"step\"><div class=\"k\">06</div><div class=\"t\"></div><div class=\"d\"></div></div>",
+  "spec": "",
+  "colophon": "Draft – not yet published"
+}

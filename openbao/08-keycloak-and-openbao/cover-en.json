@@ -1,0 +1,20 @@
+{
+  "author": "Thomas Zachmann",
+  "year": "2026",
+  "date": "2026",
+  "lang": "en",
+  "series": "OpenBao Field Notes · Nº 8",
+  "topics": "OpenBao · Keycloak · OIDC",
+  "w1": "Keycloak",
+  "w2": "and",
+  "w3": "OpenBao",
+  "tagline": "Keycloak in the cluster, OIDC login for OpenBao, groups → policies – admin access without a password in OpenBao.",
+  "diagram": "<svg class=\"diagram\" viewBox=\"0 0 300 70\" xmlns=\"http://www.w3.org/2000/svg\"></svg>",
+  "blurb_title": "Deploying Keycloak in the cluster, a realm with groups, OIDC login for OpenBao – and groups that become policies instead of passwords that live in OpenBao",
+  "blurb_1": "",
+  "blurb_2": "",
+  "code": "",
+  "steps": "      <div class=\"step\"><div class=\"k\">01</div><div class=\"t\"></div><div class=\"d\"></div></div>\n      <div class=\"step\"><div class=\"k\">02</div><div class=\"t\"></div><div class=\"d\"></div></div>\n      <div class=\"step\"><div class=\"k\">03</div><div class=\"t\"></div><div class=\"d\"></div></div>\n      <div class=\"step\"><div class=\"k\">04</div><div class=\"t\"></div><div class=\"d\"></div></div>\n      <div class=\"step\"><div class=\"k\">05</div><div class=\"t\"></div><div class=\"d\"></div></div>\n      <div class=\"step\"><div class=\"k\">06</div><div class=\"t\"></div><div class=\"d\"></div></div>",
+  "spec": "",
+  "colophon": "Draft – not yet published"
+}

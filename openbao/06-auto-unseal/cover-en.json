@@ -1,0 +1,20 @@
+{
+  "author": "Thomas Zachmann",
+  "year": "2026",
+  "date": "2026",
+  "lang": "en",
+  "series": "OpenBao Field Notes · Nº 6",
+  "topics": "OpenBao · Transit · PKCS#11",
+  "w1": "Auto-",
+  "w2": "Unseal",
+  "w3": "OpenBao",
+  "tagline": "Transit seal against a second OpenBao and seal \"pkcs11\" with a Nitrokey HSM 2 – migration, way back, failure behaviour.",
+  "diagram": "<svg class=\"diagram\" viewBox=\"0 0 300 70\" xmlns=\"http://www.w3.org/2000/svg\"></svg>",
+  "blurb_title": "Two ways to get rid of manual unsealing: transit seal against a second OpenBao, and seal \"pkcs11\" with a USB HSM – migration, way back, failure behaviour",
+  "blurb_1": "",
+  "blurb_2": "",
+  "code": "",
+  "steps": "      <div class=\"step\"><div class=\"k\">01</div><div class=\"t\"></div><div class=\"d\"></div></div>\n      <div class=\"step\"><div class=\"k\">02</div><div class=\"t\"></div><div class=\"d\"></div></div>\n      <div class=\"step\"><div class=\"k\">03</div><div class=\"t\"></div><div class=\"d\"></div></div>\n      <div class=\"step\"><div class=\"k\">04</div><div class=\"t\"></div><div class=\"d\"></div></div>\n      <div class=\"step\"><div class=\"k\">05</div><div class=\"t\"></div><div class=\"d\"></div></div>\n      <div class=\"step\"><div class=\"k\">06</div><div class=\"t\"></div><div class=\"d\"></div></div>",
+  "spec": "",
+  "colophon": "Draft – not yet published"
+}

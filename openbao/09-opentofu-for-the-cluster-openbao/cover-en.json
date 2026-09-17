@@ -1,0 +1,20 @@
+{
+  "author": "Thomas Zachmann",
+  "year": "2026",
+  "date": "2026",
+  "lang": "en",
+  "series": "OpenBao Field Notes · Nº 9",
+  "topics": "OpenBao · OpenTofu · IaC",
+  "w1": "OpenTofu",
+  "w2": "for",
+  "w3": "OpenBao",
+  "tagline": "Every CLI step from Nº 1, 2, 4 and 5 as code – importing what exists, and what deliberately stays out of Tofu.",
+  "diagram": "<svg class=\"diagram\" viewBox=\"0 0 300 70\" xmlns=\"http://www.w3.org/2000/svg\"></svg>",
+  "blurb_title": "Every CLI step from Nº 1, 2, 4 and 5 as code: auth methods, roles, policies, engines – with encrypted state, importing what exists, and what deliberately stays out of Tofu",
+  "blurb_1": "",
+  "blurb_2": "",
+  "code": "",
+  "steps": "      <div class=\"step\"><div class=\"k\">01</div><div class=\"t\"></div><div class=\"d\"></div></div>\n      <div class=\"step\"><div class=\"k\">02</div><div class=\"t\"></div><div class=\"d\"></div></div>\n      <div class=\"step\"><div class=\"k\">03</div><div class=\"t\"></div><div class=\"d\"></div></div>\n      <div class=\"step\"><div class=\"k\">04</div><div class=\"t\"></div><div class=\"d\"></div></div>\n      <div class=\"step\"><div class=\"k\">05</div><div class=\"t\"></div><div class=\"d\"></div></div>\n      <div class=\"step\"><div class=\"k\">06</div><div class=\"t\"></div><div class=\"d\"></div></div>",
+  "spec": "",
+  "colophon": "Draft – not yet published"
+}

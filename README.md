@@ -33,10 +33,13 @@ rotation really means, Nº 5 moves the cluster's CA into OpenBao.
 
 | Nº | Working title | Depends on |
 |---|---|---|
-| 6 | **Auto-unseal** – transit seal against the VM OpenBao, and `seal "pkcs11"` with a Nitrokey HSM 2 | HSM hardware, VM access |
-| 7 | **Snapshots from the cluster** – Raft snapshot CronJob to S3-compatible storage, restore drill on a throwaway cluster | object storage in the cluster |
-| 8 | **Keycloak and OpenBao** – Keycloak in the cluster, OIDC login for OpenBao, groups to policies | ingress hostname for the OIDC redirect |
-| 9 | **OpenTofu for the cluster OpenBao** – every CLI step from Nº 1, 2, 4 and 5 as code | admin login (Nº 1, part VI) |
+| 6 | [**Auto-Unseal with Transit and a Nitrokey HSM**](openbao/06-auto-unseal/) – transit seal against the VM OpenBao, and `seal "pkcs11"` with a Nitrokey HSM 2 | HSM hardware, VM access |
+| 7 | [**Raft Snapshots from the Cluster**](openbao/07-snapshots-from-the-cluster/) – snapshot CronJob to S3-compatible storage, restore drill on a throwaway cluster | object storage in the cluster |
+| 8 | [**Keycloak and OpenBao**](openbao/08-keycloak-and-openbao/) – Keycloak in the cluster, OIDC login for OpenBao, groups to policies | ingress hostname for the OIDC redirect |
+| 9 | [**OpenTofu for the Cluster OpenBao**](openbao/09-opentofu-for-the-cluster-openbao/) – every CLI step from Nº 1, 2, 4 and 5 as code | admin login (Nº 1, part VI) |
+
+Each planned note has a directory with its README, the planned outline and
+the cover copy, but no PDF until it is written.
 
 ## What the notes contain – and what they do not
 
