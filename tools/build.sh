@@ -22,7 +22,7 @@ VENV="$TOOLS/.venv"
 TITLE=$(sed -n 's/^title: *"\(.*\)"/\1/p' "$NOTE/$LANG_.md" | head -1)
 
 # 1. body
-pandoc "$NOTE/$LANG_.md" -s --toc --toc-depth=2 --syntax-highlighting=tango \
+pandoc "$NOTE/$LANG_.md" -s --toc --toc-depth=2 --syntax-highlighting=none \
   -c "$TOOLS/style-$LANG_.css" --metadata pagetitle="$TITLE" -o "$WORK/body-$LANG_.html"
 cp "$TOOLS/style-$LANG_.css" "$WORK/"
 "$CHROME" --headless=new --disable-gpu --no-pdf-header-footer \

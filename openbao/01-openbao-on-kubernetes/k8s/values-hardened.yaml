@@ -1,0 +1,34 @@
+# Additions to values.yaml for Field Note 1, part VI.2: the audit device as
+# a declarative block (API creation is off since OpenBao 2.3.2) and the PVC
+# it writes to. Adding a volumeClaimTemplate is forbidden on an existing
+# StatefulSet - delete it first (whenDeleted: Retain keeps the data PVC):
+#
+#   kubectl delete sts -n openbao openbao
+#   helm upgrade --install openbao openbao/openbao --version 0.29.4 \
+#     -n openbao -f k8s/values.yaml -f k8s/values-hardened.yaml
+#   kubectl exec -it -n openbao openbao-0 -- bao operator unseal   # x3
+server:
+  standalone:
+    config: |
+      ui = true
+
+      listener "tcp" {
+        address         = "[::]:8200"
+        cluster_address = "[::]:8201"
+        tls_disable     = 1
+      }
+
+      storage "raft" {
+        path = "/openbao/data"
+      }
+
+      audit "file" "audit" {
+        options = {
+          file_path = "/openbao/audit/audit.log"
+        }
+      }
+
+  auditStorage:
+    enabled: true
+    size: 2Gi
+    storageClass: longhorn

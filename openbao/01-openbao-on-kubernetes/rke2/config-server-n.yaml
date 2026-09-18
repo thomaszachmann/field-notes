@@ -1,0 +1,7 @@
+# /etc/rancher/rke2/config.yaml on the SECOND and THIRD server. Same as the
+# first, plus the address of the first server to join.
+server: https://<first-server-ip>:9345
+token: <cluster-token>
+cni: cilium
+node-taint:
+  - "CriticalAddonsOnly=true:NoExecute"

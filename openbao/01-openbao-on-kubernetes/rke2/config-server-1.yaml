@@ -1,0 +1,15 @@
+# /etc/rancher/rke2/config.yaml on the FIRST server (control-plane node).
+# No "server:" line here - this node creates the cluster.
+
+# Shared join secret for every further node. Choose it yourself
+# (openssl rand -hex 32) and keep it in the password manager.
+token: <cluster-token>
+
+# CNI. RKE2 defaults to canal; the choice is made before the first start
+# and cannot be changed without rebuilding the cluster.
+cni: cilium
+
+# Keep workloads off the control plane. This is why Traefik only runs on
+# the workers (Field Note 1, part IV).
+node-taint:
+  - "CriticalAddonsOnly=true:NoExecute"
