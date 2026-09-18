@@ -661,3 +661,12 @@ Here: no egress except DNS for the drill instance.
 
 **Lease** – Lifetime of a dynamic secret. A restored instance holds all
 leases of the original and would let them expire.
+
+
+# About the author
+
+Thomas Zachmann is a freelance platform engineer based in Hamburg. He builds
+enterprise platforms for Kubernetes, cloud and AI workloads – from identity
+and secrets through CI/CD and GitOps to observability – so that the in-house
+team can run them without him afterwards. These Field Notes come out of that
+work. For project enquiries: [thomaszachmann.de](https://thomaszachmann.de).

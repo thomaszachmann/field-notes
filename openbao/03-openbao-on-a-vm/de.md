@@ -12,7 +12,7 @@ Ein Secrets-Store muss zwei Dinge gleichzeitig: sicher sein und wiederkommen.
 Sicher, damit niemand ohne Berechtigung an Geheimnisse kommt. Wiederkommen,
 damit ein Plattenausfall, ein kaputtes Upgrade oder ein versehentliches
 `rm -rf` nicht das Ende aller Zugangsdaten ist, die im Unternehmen – oder im
-Homelab – je gespeichert wurden.
+Lab – je gespeichert wurden.
 
 Dieser Leitfaden baut OpenBao als **einzelnen Knoten auf einer Ubuntu-VM**:
 Raft-Storage, Shamir-Unseal, TLS, systemd-Härtung, tägliche Snapshots auf
@@ -54,7 +54,7 @@ zu können, was generiert wurde.
 
 ## Ein Wort zu den Werten in diesem Leitfaden
 
-Der Aufbau lief in einem Homelab. IP-Adressen, Hostnamen, der NAS-Typ und der
+Der Aufbau lief in einem Lab. IP-Adressen, Hostnamen, der NAS-Typ und der
 Benutzername des Administrators sind durch Platzhalter ersetzt:
 
 | Platzhalter | Bedeutung |
@@ -1158,3 +1158,12 @@ Ersetzt unter OpenBao das entfernte mlock.
 
 **XFF** – `X-Forwarded-For`, der Header, mit dem ein Reverse-Proxy die
 Client-IP weitergibt. Ohne Konfiguration zeigt das Audit-Log nur den Proxy.
+
+
+# Über den Autor
+
+Thomas Zachmann ist freiberuflicher Platform Engineer in Hamburg. Er baut
+Enterprise-Plattformen für Kubernetes, Cloud und AI-Workloads – von Identity
+und Secrets über CI/CD und GitOps bis Observability – so, dass das interne
+Team sie danach ohne ihn betreiben kann. Diese Field Notes entstehen aus
+dieser Arbeit. Für Projektanfragen: [thomaszachmann.de](https://thomaszachmann.de).

@@ -26,7 +26,7 @@ migrations at startup. That one detail – the app creates its own tables – is
 what makes the example instructive, because it forces us to think about who
 owns database objects.
 
-Everything in this guide was actually carried out on an RKE2 homelab cluster.
+Everything in this guide was actually carried out on an RKE2 lab cluster.
 The errors that came up along the way are included – they are the most
 valuable part.
 
@@ -67,7 +67,7 @@ judge what was generated.
 This guide contains passwords in plain text: `postgres123`, `demo123`,
 `admin123`, plus the usernames of dynamic database users. That is not an
 oversight. Everything here comes from a **development environment** – a
-homelab cluster with no access from outside, no real data, and a database that
+lab cluster with no access from outside, no real data, and a database that
 can be thrown away and rebuilt at any time. The values were chosen so you
 recognise them while reading, not so they protect anything.
 
@@ -1025,3 +1025,12 @@ instead of reading one. `VaultDynamicSecret` calls an OpenBao path for that.
 
 **TokenReview** – The Kubernetes API OpenBao uses to check that a
 ServiceAccount token is genuine and valid.
+
+
+# About the author
+
+Thomas Zachmann is a freelance platform engineer based in Hamburg. He builds
+enterprise platforms for Kubernetes, cloud and AI workloads – from identity
+and secrets through CI/CD and GitOps to observability – so that the in-house
+team can run them without him afterwards. These Field Notes come out of that
+work. For project enquiries: [thomaszachmann.de](https://thomaszachmann.de).

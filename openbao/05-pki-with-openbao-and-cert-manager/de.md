@@ -25,7 +25,7 @@ Hostnamen, welche Schlüsseltypen und welche Laufzeiten erlaubt sind. Jede
 Ausstellung ist in OpenBao nachvollziehbar, jeder Widerruf landet auf der
 CRL.
 
-Es ist der fünfte Teil einer Reihe über OpenBao im Homelab. Nº 1 baut den
+Es ist der fünfte Teil einer Reihe über OpenBao im Lab. Nº 1 baut den
 OpenBao im Cluster, Nº 2 und Nº 4 lassen den External Secrets Operator
 Secrets daraus beziehen. Dieser Leitfaden ist unabhängig davon lesbar,
 setzt aber den OpenBao aus Nº 1 mit aktivierter Kubernetes-Auth voraus.
@@ -323,7 +323,7 @@ Der ServiceAccount liegt im Namespace `cert-manager`, weil ein
 `ClusterIssuer` seinen `serviceAccountRef` dort auflöst. Bei einem
 namespace-gebundenen `Issuer` läge er im Namespace des Issuers – dann kann
 man pro Namespace eine eigene OpenBao-Rolle und eigene `allowed_domains`
-vergeben. Für einen Homelab-Cluster reicht der ClusterIssuer.
+vergeben. Für einen Lab-Cluster reicht der ClusterIssuer.
 
 ```
 $ kubectl apply -f k8s/clusterissuer.yaml
@@ -442,7 +442,7 @@ Das Test-Manifest hatte keinen `privateKey`-Block. cert-manager nimmt dann
 Issuer braucht `privateKey.algorithm: ECDSA`, und bei Ingress-Annotationen
 (Teil V) muss der Algorithmus ebenfalls gesetzt werden. Oder man stellt die
 Rolle auf `key_type=any` – dann entscheidet der Antragsteller, was in einer
-Homelab-PKI vertretbar ist, in einer Firmen-PKI eher nicht.
+Lab-PKI vertretbar ist, in einer Firmen-PKI eher nicht.
 
 Mit ECDSA im Manifest kommt der erwartete Fehler:
 
@@ -704,3 +704,12 @@ Aussteller-Zertifikat bzw. die Widerrufsliste finden.
 
 **`rotationPolicy`** – Ob cert-manager bei der Erneuerung einen neuen
 privaten Schlüssel erzeugt (`Always`) oder den alten behält (`Never`).
+
+
+# Über den Autor
+
+Thomas Zachmann ist freiberuflicher Platform Engineer in Hamburg. Er baut
+Enterprise-Plattformen für Kubernetes, Cloud und AI-Workloads – von Identity
+und Secrets über CI/CD und GitOps bis Observability – so, dass das interne
+Team sie danach ohne ihn betreiben kann. Diese Field Notes entstehen aus
+dieser Arbeit. Für Projektanfragen: [thomaszachmann.de](https://thomaszachmann.de).

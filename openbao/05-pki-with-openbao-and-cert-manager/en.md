@@ -23,7 +23,7 @@ OpenBao – through a role that defines which hostnames, which key types and
 which lifetimes are allowed. Every issuance is traceable in OpenBao, every
 revocation lands on the CRL.
 
-It is the fifth part of a series about OpenBao in a homelab. Nº 1 builds the
+It is the fifth part of a series about OpenBao in a lab. Nº 1 builds the
 OpenBao in the cluster, Nº 2 and Nº 4 let the External Secrets Operator draw
 secrets from it. This guide can be read on its own but assumes the OpenBao
 from Nº 1 with Kubernetes auth enabled.
@@ -318,7 +318,7 @@ The ServiceAccount lives in the `cert-manager` namespace because a
 `ClusterIssuer` resolves its `serviceAccountRef` there. With a
 namespace-bound `Issuer` it would live in the issuer's namespace – then you
 can give each namespace its own OpenBao role and its own `allowed_domains`.
-For a homelab cluster the ClusterIssuer is enough.
+For a lab cluster the ClusterIssuer is enough.
 
 ```
 $ kubectl apply -f k8s/clusterissuer.yaml
@@ -433,7 +433,7 @@ The test manifest had no `privateKey` block. cert-manager then uses
 **before** the hostnames. Two consequences: every `Certificate` against this
 issuer needs `privateKey.algorithm: ECDSA`, and with ingress annotations
 (Part V) the algorithm has to be set as well. Or you set the role to
-`key_type=any` – then the applicant decides, which is defensible in a homelab
+`key_type=any` – then the applicant decides, which is defensible in a lab
 PKI, less so in a corporate one.
 
 With ECDSA in the manifest the expected error arrives:
@@ -694,3 +694,12 @@ certificate and the revocation list.
 
 **`rotationPolicy`** – Whether cert-manager generates a new private key on
 renewal (`Always`) or keeps the old one (`Never`).
+
+
+# About the author
+
+Thomas Zachmann is a freelance platform engineer based in Hamburg. He builds
+enterprise platforms for Kubernetes, cloud and AI workloads – from identity
+and secrets through CI/CD and GitOps to observability – so that the in-house
+team can run them without him afterwards. These Field Notes come out of that
+work. For project enquiries: [thomaszachmann.de](https://thomaszachmann.de).

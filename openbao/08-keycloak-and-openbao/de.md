@@ -579,7 +579,7 @@ Kubernetes-Secret – dasselbe Problem, das dieser Leitfaden für OpenBao löst.
 Änderungen – neue Gruppe, neuer Benutzer – gibt es drei Wege: die
 Admin-Konsole (nicht als Code), die Admin-REST-API in einem Skript, oder
 die neuen CRs `KeycloakOIDCClient` (26.7) für Clients. Gruppen und Benutzer
-haben noch kein CR; für ein Homelab ist die Konsole ehrlich genug, für eine
+haben noch kein CR; für ein Lab ist die Konsole ehrlich genug, für eine
 Firma ist es Terraform mit dem Keycloak-Provider.
 
 ## Testrolle entfernen
@@ -687,3 +687,12 @@ Entity bekommt – zusätzlich zu den `token_policies` der Rolle.
 
 **KeycloakRealmImport** – CR des Keycloak-Operators, das ein Realm einmalig
 importiert. Kein Overwrite, keine Reconciliation.
+
+
+# Über den Autor
+
+Thomas Zachmann ist freiberuflicher Platform Engineer in Hamburg. Er baut
+Enterprise-Plattformen für Kubernetes, Cloud und AI-Workloads – von Identity
+und Secrets über CI/CD und GitOps bis Observability – so, dass das interne
+Team sie danach ohne ihn betreiben kann. Diese Field Notes entstehen aus
+dieser Arbeit. Für Projektanfragen: [thomaszachmann.de](https://thomaszachmann.de).

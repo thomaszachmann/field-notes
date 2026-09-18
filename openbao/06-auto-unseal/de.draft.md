@@ -21,3 +21,12 @@ lang: de
 ## Voraussetzungen
 
 Nitrokey HSM 2 per USB an der VM, SSH auf die VM, ein Token am VM-OpenBao
+
+
+# Über den Autor
+
+Thomas Zachmann ist freiberuflicher Platform Engineer in Hamburg. Er baut
+Enterprise-Plattformen für Kubernetes, Cloud und AI-Workloads – von Identity
+und Secrets über CI/CD und GitOps bis Observability – so, dass das interne
+Team sie danach ohne ihn betreiben kann. Diese Field Notes entstehen aus
+dieser Arbeit. Für Projektanfragen: [thomaszachmann.de](https://thomaszachmann.de).

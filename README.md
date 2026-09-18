@@ -1,6 +1,7 @@
 # Field Notes
 
-Short, free guides from a homelab, by **Thomas Zachmann**, organised in
+Short, free guides from a lab, by **Thomas Zachmann** – freelance platform
+engineer, [thomaszachmann.de](https://thomaszachmann.de) – organised in
 series. The first series is about OpenBao; others (AI infrastructure, RAG,
 LiteLLM) will follow in their own directories. Each note walks a single piece of infrastructure from an empty system to a verified
 state – by hand, with every command, every manifest and every error that

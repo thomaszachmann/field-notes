@@ -11,7 +11,7 @@ lang: en
 A secrets store has to do two things at once: be secure, and come back.
 Secure, so that nobody gets to secrets without authorisation. Come back, so
 that a dead disk, a broken upgrade or an accidental `rm -rf` is not the end of
-every credential ever stored in the company – or the homelab.
+every credential ever stored in the company – or the lab.
 
 This guide builds OpenBao as a **single node on an Ubuntu VM**: Raft storage,
 Shamir unseal, TLS, systemd hardening, daily snapshots to a NAS. Ansible does
@@ -50,7 +50,7 @@ judge what was generated.
 
 ## A word about the values in this guide
 
-The setup ran in a homelab. IP addresses, hostnames, the NAS type and the
+The setup ran in a lab. IP addresses, hostnames, the NAS type and the
 administrator's username are replaced by placeholders:
 
 | Placeholder | Meaning |
@@ -1147,3 +1147,12 @@ Replaces the removed mlock under OpenBao.
 
 **XFF** – `X-Forwarded-For`, the header a reverse proxy uses to pass on the
 client IP. Without configuration the audit log only shows the proxy.
+
+
+# About the author
+
+Thomas Zachmann is a freelance platform engineer based in Hamburg. He builds
+enterprise platforms for Kubernetes, cloud and AI workloads – from identity
+and secrets through CI/CD and GitOps to observability – so that the in-house
+team can run them without him afterwards. These Field Notes come out of that
+work. For project enquiries: [thomaszachmann.de](https://thomaszachmann.de).

@@ -575,7 +575,7 @@ problem this guide solves for OpenBao.
 `KeycloakRealmImport` is an import, not reconciliation. For ongoing changes
 – new group, new user – there are three routes: the admin console (not as
 code), the admin REST API in a script, or the new CRs `KeycloakOIDCClient`
-(26.7) for clients. Groups and users have no CR yet; for a homelab the
+(26.7) for clients. Groups and users have no CR yet; for a lab the
 console is honest enough, for a company it is Terraform with the Keycloak
 provider.
 
@@ -684,3 +684,12 @@ groups – in addition to the role's `token_policies`.
 
 **KeycloakRealmImport** – CR of the Keycloak operator that imports a realm
 once. No overwrite, no reconciliation.
+
+
+# About the author
+
+Thomas Zachmann is a freelance platform engineer based in Hamburg. He builds
+enterprise platforms for Kubernetes, cloud and AI workloads – from identity
+and secrets through CI/CD and GitOps to observability – so that the in-house
+team can run them without him afterwards. These Field Notes come out of that
+work. For project enquiries: [thomaszachmann.de](https://thomaszachmann.de).

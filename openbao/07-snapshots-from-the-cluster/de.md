@@ -668,3 +668,12 @@ einschränkt. Hier: kein Egress außer DNS für die Probe-Instanz.
 
 **Lease** – Lebensdauer eines dynamischen Secrets. Eine wiederhergestellte
 Instanz hält alle Leases des Originals und würde sie ablaufen lassen.
+
+
+# Über den Autor
+
+Thomas Zachmann ist freiberuflicher Platform Engineer in Hamburg. Er baut
+Enterprise-Plattformen für Kubernetes, Cloud und AI-Workloads – von Identity
+und Secrets über CI/CD und GitOps bis Observability – so, dass das interne
+Team sie danach ohne ihn betreiben kann. Diese Field Notes entstehen aus
+dieser Arbeit. Für Projektanfragen: [thomaszachmann.de](https://thomaszachmann.de).

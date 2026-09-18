@@ -15,6 +15,12 @@ t = open(tpl).read(); d = json.load(open(data))
 t = re.sub(r'\{\{(\w+)\}\}', lambda m: d.get(m.group(1), fonts if m.group(1)=="fonts_css" else ""), t)
 open(out, "w").write(t.replace("__PAGES__", "–"))
 PY
+# Same workaround as build.sh: Chrome may write the PDF and never exit.
+OUT="$NOTE/$SLUG-$LANG_-preview.pdf"; rm -f "$OUT"
 "$CHROME" --headless=new --disable-gpu --no-pdf-header-footer \
-  --print-to-pdf="$NOTE/$SLUG-$LANG_-preview.pdf" "file://$WORK/cover-$LANG_.html" >/dev/null 2>&1
+  --print-to-pdf="$OUT" "file://$WORK/cover-$LANG_.html" >/dev/null 2>&1 &
+pid=$!; i=0
+while [ $i -lt 120 ] && ! [ -s "$OUT" ]; do sleep 1; i=$((i+1)); done
+sleep 1; kill "$pid" 2>/dev/null || true; wait "$pid" 2>/dev/null || true
+[ -s "$OUT" ] || { echo "no output for $OUT" >&2; exit 1; }
 echo "$NOTE/$SLUG-$LANG_-preview.pdf"

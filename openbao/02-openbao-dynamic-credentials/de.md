@@ -28,7 +28,7 @@ Start seine eigenen Schema-Migrationen ausführt. Genau dieses Detail – die Ap
 legt selbst Tabellen an – macht das Beispiel lehrreich, denn es zwingt uns,
 über Eigentümerschaft von Datenbankobjekten nachzudenken.
 
-Alles, was hier steht, wurde in einem RKE2-Homelab-Cluster tatsächlich
+Alles, was hier steht, wurde in einem RKE2-Lab-Cluster tatsächlich
 durchgeführt. Die Fehler, die dabei aufgetreten sind, stehen mit drin – sie
 sind der wertvollste Teil.
 
@@ -70,7 +70,7 @@ zu können, was generiert wurde.
 In diesem Leitfaden stehen Passwörter im Klartext: `postgres123`, `demo123`,
 `admin123`, dazu Usernames dynamischer Datenbank-Benutzer. Das ist kein
 Versehen. Alles hier stammt aus einer **Entwicklungsumgebung** – ein
-Homelab-Cluster ohne Zugang von außen, ohne echte Daten, mit einer Datenbank,
+Lab-Cluster ohne Zugang von außen, ohne echte Daten, mit einer Datenbank,
 die jederzeit weggeworfen und neu aufgesetzt werden kann. Die Werte sind
 gewählt, damit man sie beim Lesen wiedererkennt, nicht damit sie etwas
 schützen.
@@ -1035,3 +1035,12 @@ OpenBao-Pfad auf.
 
 **TokenReview** – Kubernetes-API, mit der OpenBao prüft, ob ein
 ServiceAccount-Token echt und gültig ist.
+
+
+# Über den Autor
+
+Thomas Zachmann ist freiberuflicher Platform Engineer in Hamburg. Er baut
+Enterprise-Plattformen für Kubernetes, Cloud und AI-Workloads – von Identity
+und Secrets über CI/CD und GitOps bis Observability – so, dass das interne
+Team sie danach ohne ihn betreiben kann. Diese Field Notes entstehen aus
+dieser Arbeit. Für Projektanfragen: [thomaszachmann.de](https://thomaszachmann.de).

@@ -19,14 +19,25 @@ CHROME="${CHROME:-/Applications/Google Chrome.app/Contents/MacOS/Google Chrome}"
 VENV="$TOOLS/.venv"
 [ -x "$VENV/bin/python" ] || { python3 -m venv "$VENV" && "$VENV/bin/pip" -q install pypdf; }
 
+# Headless Chrome on macOS sometimes writes the PDF and then never exits
+# (seen with a locked screen). Wait for the file instead of the process.
+print_pdf() {
+  out=$1; url=$2; rm -f "$out"
+  "$CHROME" --headless=new --disable-gpu --no-pdf-header-footer \
+    --print-to-pdf="$out" "$url" >/dev/null 2>&1 &
+  pid=$!; i=0
+  while [ $i -lt 120 ] && ! [ -s "$out" ]; do sleep 1; i=$((i+1)); done
+  sleep 1; kill "$pid" 2>/dev/null || true; wait "$pid" 2>/dev/null || true
+  [ -s "$out" ] || { echo "print_pdf: no output for $url" >&2; exit 1; }
+}
+
 TITLE=$(sed -n 's/^title: *"\(.*\)"/\1/p' "$NOTE/$LANG_.md" | head -1)
 
 # 1. body
 pandoc "$NOTE/$LANG_.md" -s --toc --toc-depth=2 --syntax-highlighting=none \
   -c "$TOOLS/style-$LANG_.css" --metadata pagetitle="$TITLE" -o "$WORK/body-$LANG_.html"
 cp "$TOOLS/style-$LANG_.css" "$WORK/"
-"$CHROME" --headless=new --disable-gpu --no-pdf-header-footer \
-  --print-to-pdf="$WORK/body-$LANG_.pdf" "file://$WORK/body-$LANG_.html" >/dev/null 2>&1
+print_pdf "$WORK/body-$LANG_.pdf" "file://$WORK/body-$LANG_.html"
 PAGES=$(( $(pdfinfo "$WORK/body-$LANG_.pdf" | awk '/^Pages/{print $2}') + 2 ))
 
 # 2. cover
@@ -37,8 +48,7 @@ t = open(tpl).read(); d = json.load(open(data))
 t = re.sub(r'\{\{(\w+)\}\}', lambda m: d.get(m.group(1), fonts if m.group(1)=="fonts_css" else ""), t)
 open(out, "w").write(t.replace("__PAGES__", pages))
 PY
-"$CHROME" --headless=new --disable-gpu --no-pdf-header-footer \
-  --print-to-pdf="$WORK/cover-$LANG_.pdf" "file://$WORK/cover-$LANG_.html" >/dev/null 2>&1
+print_pdf "$WORK/cover-$LANG_.pdf" "file://$WORK/cover-$LANG_.html"
 
 # 3. merge
 "$VENV/bin/python" - "$WORK/cover-$LANG_.pdf" "$WORK/body-$LANG_.pdf" "$OUT" "$TITLE" <<'PY'
