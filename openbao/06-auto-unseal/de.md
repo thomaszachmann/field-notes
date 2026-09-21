@@ -875,6 +875,40 @@ Sie gehören trotzdem in den Passwort-Manager, an denselben Ort wie vorher
 die Unseal-Keys – und das Runbook aus Nº 1 muss umbenennen: Nach einem
 Neustart ist nichts zu unsealen; wer es versucht, bekommt einen Fehler.
 
+## Es sind die alten Keys – und warum man sie jetzt tauschen sollte
+
+Ein Missverständnis, das ich selbst hatte: Bei einer *Neu-Initialisierung*
+mit HSM-Seal (`bao operator init` gegen eine frische Instanz) erzeugt
+OpenBao neue Recovery Keys und gibt sie einmalig aus. Bei einer *Migration*
+passiert das nicht. `unseal -migrate` widmet die fünf Shamir-Keys um –
+dasselbe Schlüsselmaterial, neue Rolle. `bao status` zeigt es: `Recovery
+Seal Type shamir`, `Total Recovery Shares 5`, `Threshold 3` – die alten
+Parameter.
+
+Das heißt auch: Die Keys, die während der Migration dreimal in ein
+Terminal getippt wurden, sind die Keys, die künftig den Rückweg autorisieren.
+Wer sie in dieser Sitzung auf mehreren Rechnern, in einer Bildschirmfreigabe
+oder in einer Shell-History hatte, tauscht sie jetzt – die Migration ist
+der natürliche Zeitpunkt, weil man die alten gerade ohnehin zur Hand hat:
+
+```sh
+kubectl -n openbao exec -it openbao-0 -- bao operator rekey \
+  -target=recovery -init -key-shares=5 -key-threshold=3
+# Ausgabe: Nonce. Dann dreimal, je ein ALTER Recovery Key:
+kubectl -n openbao exec -it openbao-0 -- bao operator rekey -target=recovery -nonce=<nonce>
+```
+
+Beim dritten Key gibt OpenBao **fünf neue Recovery Keys** aus – einmalig,
+im Terminal. Die alten sind ab diesem Moment ungültig. Die neuen gehen in
+den Passwort-Manager, bevor irgendetwas anderes passiert (Nº 7, der Fehler
+mit den Shell-Variablen). `-target=recovery` ist der Unterschied zum Rekey
+eines Shamir-Seals; ohne das Flag versucht OpenBao, die Barrier-Keys zu
+wechseln, und die gibt es bei einem Auto-Seal nicht.
+
+Ich habe diesen Schritt hier **nicht** ausgeführt – die Keys dieser Instanz
+haben nur ein Terminal gesehen. Er steht als Verfahren hier, weil er in
+jedes Runbook gehört, das eine Migration beschreibt.
+
 ## Der Schlüssel ist nicht gesichert
 
 Das ist der Punkt, den dieser Leitfaden nicht wegerklären kann. Der Token
@@ -1377,6 +1411,10 @@ kubectl -n openbao exec openbao-0 -- bao status
 # ── Der Beweis ───────────────────────────────────────────────────────
 kubectl -n openbao delete pod openbao-0                   # nichts eingeben
 kubectl -n openbao logs openbao-0 | grep unseal           # "unsealed with stored key"
+
+# ── Recovery Keys tauschen (nicht durchgeführt) ──────────────────────
+kubectl -n openbao exec -it openbao-0 -- bao operator rekey -target=recovery -init -key-shares=5 -key-threshold=3
+kubectl -n openbao exec -it openbao-0 -- bao operator rekey -target=recovery -nonce=<nonce>   # ×3 ALTE Keys → 5 NEUE
 
 # ── Rückweg (nicht durchgeführt) ─────────────────────────────────────
 #   seal "pkcs11" { … disabled = "true" }  →  helm upgrade  →  delete pod

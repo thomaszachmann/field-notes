@@ -862,6 +862,39 @@ They still belong in the password manager, in the same place as the unseal
 keys before – and the runbook from Nº 1 has to be renamed: after a restart
 there is nothing to unseal; whoever tries gets an error.
 
+## They are the old keys – and why to rotate them now
+
+A misunderstanding I had myself: on a *fresh initialisation* with an HSM
+seal (`bao operator init` against a new instance), OpenBao generates new
+recovery keys and prints them once. On a *migration* that does not happen.
+`unseal -migrate` repurposes the five Shamir keys – the same key material, a
+new role. `bao status` shows it: `Recovery Seal Type shamir`, `Total Recovery
+Shares 5`, `Threshold 3` – the old parameters.
+
+That also means: the keys that were typed into a terminal three times during
+the migration are the keys that will authorise the way back from now on.
+Whoever had them on several machines, in a screen share or in a shell
+history during that session rotates them now – the migration is the natural
+moment, because the old ones are at hand anyway:
+
+```sh
+kubectl -n openbao exec -it openbao-0 -- bao operator rekey \
+  -target=recovery -init -key-shares=5 -key-threshold=3
+# output: a nonce. Then three times, one OLD recovery key each:
+kubectl -n openbao exec -it openbao-0 -- bao operator rekey -target=recovery -nonce=<nonce>
+```
+
+On the third key OpenBao prints **five new recovery keys** – once, in the
+terminal. The old ones are invalid from that moment. The new ones go into
+the password manager before anything else happens (Nº 7, the error with the
+shell variables). `-target=recovery` is the difference to rekeying a Shamir
+seal; without the flag OpenBao tries to rotate the barrier keys, and an auto
+seal does not have any.
+
+I did **not** carry out this step here – this instance's keys have only
+seen one terminal. It is here as a procedure because it belongs in every
+runbook that describes a migration.
+
 ## The key is not backed up
 
 This is the point this guide cannot explain away. The token has no DKEK.
@@ -1356,6 +1389,10 @@ kubectl -n openbao exec openbao-0 -- bao status
 # ── The proof ────────────────────────────────────────────────────────
 kubectl -n openbao delete pod openbao-0                   # enter nothing
 kubectl -n openbao logs openbao-0 | grep unseal           # "unsealed with stored key"
+
+# ── Rotate the recovery keys (not carried out) ───────────────────────
+kubectl -n openbao exec -it openbao-0 -- bao operator rekey -target=recovery -init -key-shares=5 -key-threshold=3
+kubectl -n openbao exec -it openbao-0 -- bao operator rekey -target=recovery -nonce=<nonce>   # ×3 OLD keys → 5 NEW
 
 # ── The way back (not carried out) ───────────────────────────────────
 #   seal "pkcs11" { … disabled = "true" }  →  helm upgrade  →  delete pod
