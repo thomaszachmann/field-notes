@@ -41,6 +41,7 @@ variant. They stay as material for the follow-up (see below).
 | `de.md`, `en.md`, `cover-*.json` | the note and its cover |
 | `vm/proxmox-usb-passthrough.md` | attach the stick to a VM (`qm set … -usb0 host=20a0:4230`) – used for the worker VM |
 | `vm/pkcs11-setup.sh`, `ansible/README.md` | the original VM/AES variant – material for Nº 6b, not what the note does |
+| `cluster/nethsm-lab/` | the NetHSM lab of Part VIII: Dockerfile, NetHSM Deployment + provisioning, values, NetworkPolicies, debug profile |
 | `cluster/transit-setup.sh`, `cluster/values-transit.yaml` | transit seal against the VM OpenBao – the recommended next step (Part VIII, way A) |
 
 ## Follow-up
@@ -52,8 +53,10 @@ variant. They stay as material for the follow-up (see below).
   KMS plugin (glibc binary → UBI base image). Part X has the draft.
 - Re-initialise the token with DKEK shares before the seal counts as
   production (Part VII).
-- Part VIII is a twelve-step debug procedure for a *network* HSM (Securosys,
-  NetHSM, Luna): outside-in, from `nc` to `strace`. A procedure, not a session.
+- Part VIII is a twelve-step debug session against a *network* HSM: Nitrokey's
+  NetHSM test container in the dev cluster, own image with `nethsm-pkcs11`,
+  six failures (four unplanned), from a Service without endpoints to `ss -tnp`.
+  Manifests in `cluster/nethsm-lab/`.
 
 ## How this note was written
 

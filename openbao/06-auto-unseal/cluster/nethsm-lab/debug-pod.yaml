@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata: {name: pkcs11-debug, namespace: nethsm-lab}
+spec:
+  restartPolicy: Never
+  securityContext: {runAsNonRoot: true, runAsUser: 100, runAsGroup: 1000}
+  containers:
+  - name: debug
+    image: docker.io/softxpert/openbao-nethsm:2.6.2@sha256:48c668b62a9e46cf205c43bcd8344275915301cdbd256c933a5ca1361b37da64
+    command: ["sleep", "3600"]
+    env: [{name: BAO_HSM_PIN, valueFrom: {secretKeyRef: {name: openbao-hsm, key: BAO_HSM_PIN}}}]
+    volumeMounts: [{name: p11nethsm, mountPath: /etc/nitrokey, readOnly: true}]
+  volumes:
+  - name: p11nethsm
+    configMap: {name: p11nethsm}

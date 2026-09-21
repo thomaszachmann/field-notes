@@ -1,0 +1,88 @@
+apiVersion: v1
+kind: Namespace
+metadata: {name: nethsm-lab}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: nethsm, namespace: nethsm-lab}
+spec:
+  replicas: 1
+  strategy: {type: Recreate}
+  selector: {matchLabels: {app: nethsm}}
+  template:
+    metadata: {labels: {app: nethsm}}
+    spec:
+      containers:
+      - name: nethsm
+        image: nitrokey/nethsm:testing
+        ports: [{containerPort: 8443}]
+        # /health/alive answers 200 only while Unprovisioned or Locked and 412
+        # once Operational; /health/ready is the reverse. A TCP probe keeps the
+        # Service's endpoints in every state.
+        readinessProbe:
+          tcpSocket: {port: 8443}
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        # etcd state lives in /data; without a volume every restart is a
+        # factory reset (Unprovisioned).
+        volumeMounts: [{name: data, mountPath: /data}]
+      volumes:
+      - name: data
+        persistentVolumeClaim: {claimName: nethsm-data}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata: {name: nethsm-data, namespace: nethsm-lab}
+spec:
+  accessModes: [ReadWriteOnce]
+  storageClassName: longhorn
+  resources: {requests: {storage: 1Gi}}
+---
+apiVersion: v1
+kind: Service
+metadata: {name: nethsm, namespace: nethsm-lab}
+spec:
+  selector: {app: nethsm}
+  ports: [{port: 8443, targetPort: 8443}]
+---
+apiVersion: v1
+kind: ConfigMap
+metadata: {name: nethsm-provision, namespace: nethsm-lab}
+data:
+  provision.sh: |
+    #!/bin/sh
+    # Lab values, printed on purpose (see the note's "values" section).
+    HOST=nethsm:8443
+    until curl -f -k -s https://$HOST/api/v1/health/alive; do echo "waiting for NetHSM"; sleep 2; done
+    if curl -k -s https://$HOST/api/v1/health/state | grep -q Unprovisioned; then
+      echo "provisioning"
+      curl -k -sf https://$HOST/api/v1/provision -H 'Content-Type: application/json' \
+        -d "{\"unlockPassphrase\":\"UnlockPassphrase\",\"adminPassphrase\":\"AdminPassphrase\",\"systemTime\":\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"}"
+      curl -k -sf -u admin:AdminPassphrase https://$HOST/api/v1/users/operator -X PUT -H 'Content-Type: application/json' \
+        -d '{"role":"Operator","passphrase":"OperatorOperator","realName":"OpenBao Operator"}'
+      curl -k -sf -u admin:AdminPassphrase https://$HOST/api/v1/keys/generate -H 'Content-Type: application/json' \
+        -d '{"mechanisms":["RSA_Decryption_OAEP_SHA256"],"type":"RSA","length":2048,"id":"openbao-unseal"}'
+    else
+      echo "already provisioned; unlocking"
+      curl -k -s -u admin:AdminPassphrase https://$HOST/api/v1/unlock -H 'Content-Type: application/json' -d '{"passphrase":"UnlockPassphrase"}'
+    fi
+    until curl -f -k -s https://$HOST/api/v1/health/ready; do echo "waiting for ready"; sleep 2; done
+    echo; echo "state: $(curl -k -s https://$HOST/api/v1/health/state)"
+    curl -k -s -u admin:AdminPassphrase https://$HOST/api/v1/keys; echo
+---
+apiVersion: batch/v1
+kind: Job
+metadata: {name: nethsm-provision, namespace: nethsm-lab}
+spec:
+  backoffLimit: 3
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+      - name: provision
+        image: curlimages/curl:latest
+        command: ["/bin/sh", "/scripts/provision.sh"]
+        volumeMounts: [{name: scripts, mountPath: /scripts}]
+      volumes:
+      - name: scripts
+        configMap: {name: nethsm-provision, defaultMode: 0755}

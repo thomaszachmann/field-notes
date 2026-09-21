@@ -1,0 +1,50 @@
+# OpenBao lab instance against the NetHSM test container (Field Note 6, Part VIII).
+global:
+  tlsDisable: true
+injector:
+  enabled: false
+server:
+  image:
+    registry: docker.io
+    repository: softxpert/openbao-nethsm
+    tag: "2.6.2@sha256:48c668b62a9e46cf205c43bcd8344275915301cdbd256c933a5ca1361b37da64"
+  dataStorage:
+    enabled: true
+    size: 1Gi
+    storageClass: longhorn
+  resources:
+    requests: {cpu: 100m, memory: 256Mi}
+    limits: {memory: 512Mi}
+  volumes:
+    - name: p11nethsm
+      configMap: {name: p11nethsm}
+  volumeMounts:
+    - name: p11nethsm
+      mountPath: /etc/nitrokey
+      readOnly: true
+  extraSecretEnvironmentVars:
+    - envName: BAO_HSM_PIN
+      secretName: openbao-hsm
+      secretKey: BAO_HSM_PIN
+  standalone:
+    enabled: true
+    config: |
+      ui = true
+      listener "tcp" {
+        address         = "[::]:8200"
+        cluster_address = "[::]:8201"
+        tls_disable     = 1
+      }
+      storage "raft" {
+        path = "/openbao/data"
+      }
+      seal "pkcs11" {
+        lib         = "/usr/lib/nitrokey/libnethsm_pkcs11.so"
+        token_label = "LabHSM"
+        # nethsm-pkcs11 v3 exposes keys with an EMPTY label; the NetHSM key id
+        # becomes CKA_ID (hex of the string). "openbao-unseal" -> 0x6f70...
+        key_id      = "0x6f70656e62616f2d756e7365616c"
+        mechanism   = "CKM_RSA_PKCS_OAEP"
+      }
+ui:
+  enabled: true

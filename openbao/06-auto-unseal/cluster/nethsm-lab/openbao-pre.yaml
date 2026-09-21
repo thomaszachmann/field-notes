@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: ConfigMap
+metadata: {name: p11nethsm, namespace: nethsm-lab}
+data:
+  p11nethsm.conf: |
+    log_level: Info
+    slots:
+      - label: LabHSM
+        description: NetHSM test container in the dev cluster
+        operator:
+          username: "operator"
+        instances:
+          - url: "https://nethsm.nethsm-lab.svc:8443/api/v1"
+            danger_insecure_cert: true
+---
+apiVersion: v1
+kind: Secret
+metadata: {name: openbao-hsm, namespace: nethsm-lab}
+type: Opaque
+stringData:
+  BAO_HSM_PIN: OperatorOperator   # lab value, printed on purpose
