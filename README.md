@@ -8,13 +8,15 @@ state – by hand, with every command, every manifest and every error that
 happened along the way. They are deliberately written without AI assistance
 as a shortcut: the point is to understand which components are involved and
 how the flow runs, well enough to draw the architecture on a blank sheet of
-paper.
+paper. (Nº 6 is the exception – it came out of a pair-programming session
+with Claude Code and says so in its introduction; every command in it was
+still run by hand.)
 
 Every note is available in German and English as a PDF. The Markdown sources,
 cover data and manifests are in this repository; the PDFs are built from
 them with `tools/build.sh`.
 
-## OpenBao – nine notes, seven published
+## OpenBao – nine notes, eight published
 
 | Nº | Title | Read |
 |---|---|---|
@@ -23,6 +25,7 @@ them with `tools/build.sh`.
 | 3 | **OpenBao on a VM** – a single node with Ansible and OpenTofu: installation, bootstrap runbook, snapshots, disaster recovery | [DE](openbao/03-openbao-on-a-vm/openbao-on-a-vm-de.pdf) · [EN](openbao/03-openbao-on-a-vm/openbao-on-a-vm-en.pdf) |
 | 4 | **Kubernetes Secrets with ESO and OpenBao** – static secrets from KV v2 into the cluster: `data`, `extract`, `find`, `template`, rotation with Reloader, `PushSecret` back | [DE](openbao/04-kubernetes-secrets-with-eso/kubernetes-secrets-with-eso-de.pdf) · [EN](openbao/04-kubernetes-secrets-with-eso/kubernetes-secrets-with-eso-en.pdf) |
 | 5 | **PKI with OpenBao and cert-manager** – root and intermediate CA in OpenBao, certificates via cert-manager for ingress and service-to-service, renewal and revocation | [DE](openbao/05-pki-with-openbao-and-cert-manager/pki-with-openbao-and-cert-manager-de.pdf) · [EN](openbao/05-pki-with-openbao-and-cert-manager/pki-with-openbao-and-cert-manager-en.pdf) |
+| 6 | **Auto-Unseal with a Nitrokey HSM 2** – `seal "pkcs11"` for the cluster OpenBao: USB HSM on the worker, a custom image with OpenBao's HSM build, migration from Shamir, and the six errors in between – plus drafts for one HSM for all pods and the OpenBao 2.7 plugin path | [DE](openbao/06-auto-unseal/auto-unseal-de.pdf) · [EN](openbao/06-auto-unseal/auto-unseal-en.pdf) |
 | 7 | **Raft Snapshots from the Cluster** – a CronJob with its own identity, verified archives to MinIO, a staleness check, and a restore drill on an isolated instance with two key sets | [DE](openbao/07-snapshots-from-the-cluster/snapshots-from-the-cluster-de.pdf) · [EN](openbao/07-snapshots-from-the-cluster/snapshots-from-the-cluster-en.pdf) |
 | 8 | **Keycloak and OpenBao** – Keycloak in the cluster via operator, a realm as code, OIDC login for OpenBao, groups that become policies through external groups | [DE](openbao/08-keycloak-and-openbao/keycloak-and-openbao-de.pdf) · [EN](openbao/08-keycloak-and-openbao/keycloak-and-openbao-en.pdf) |
 
@@ -30,14 +33,14 @@ The notes form a sequence: Nº 1 builds the secrets store in the cluster, Nº 2
 lets an application consume dynamic credentials, Nº 3 shows the same OpenBao
 on a VM with the full bootstrap and recovery procedure that the cluster setup
 still lacks, Nº 4 covers the everyday case of static secrets and what
-rotation really means, Nº 5 moves the cluster's CA into OpenBao, Nº 7 backs
+rotation really means, Nº 5 moves the cluster's CA into OpenBao, Nº 6 replaces the manual
+unseal with a hardware key, Nº 7 backs
 it all up and rehearses the restore, Nº 8 gives humans a login through Keycloak.
 
 ## Planned
 
 | Nº | Working title | Depends on |
 |---|---|---|
-| 6 | [**Auto-Unseal with Transit and a Nitrokey HSM**](openbao/06-auto-unseal/) – transit seal against the VM OpenBao, and `seal "pkcs11"` with a Nitrokey HSM 2. Scripts, Proxmox passthrough guide and Ansible changes are prepared | the HSM (arriving), VM access |
 | 9 | [**OpenTofu for the Cluster OpenBao**](openbao/09-opentofu-for-the-cluster-openbao/) – every CLI step from Nº 1, 2, 4, 5, 7 and 8 as code. The configuration is written, validated and carries import blocks for all 26 objects; only the first `tofu plan` is missing | an admin login (Nº 1 part VI or Nº 8) |
 
 Each planned note has a directory with its README, the planned outline, the
