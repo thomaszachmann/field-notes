@@ -32,9 +32,11 @@ eigentliche Inhalt dieses Leitfadens.
 
 Es ist der sechste Teil einer Reihe. Er setzt den Cluster-OpenBao aus Nº 1
 voraus und den Snapshot aus Nº 7, ohne den man eine Seal-Migration nicht
-anfangen sollte. Zwei Teile am Ende sind Entwürfe und als solche markiert:
-ein HSM, das nicht an einem Worker hängt, sondern allen Pods dient – und der
-Weg, den OpenBao 2.7 vorgibt, wenn es die HSM-Distribution einstellt.
+anfangen sollte. Drei Teile am Ende sind keine Sitzung, sondern Verfahren und Entwürfe, und
+als solche markiert: ein Debug-Ablauf für ein HSM, das über das Netz
+angesprochen wird; ein HSM, das nicht an einem Worker hängt, sondern allen
+Pods dient; und der Weg, den OpenBao 2.7 vorgibt, wenn es die
+HSM-Distribution einstellt.
 
 ## Wie dieser Leitfaden entstanden ist
 
@@ -125,7 +127,7 @@ Drei Dinge, die man aus dem Bild mitnehmen sollte:
 2. **Der Pod ist an den Worker gebunden.** Ein USB-Stick folgt keinem Pod.
    Stirbt worker-03, gibt es keinen Unseal – nicht mit Recovery Keys, mit
    nichts. Das ist ein bewusster Single Point of Failure, kein Versehen, und
-   Teil VIII zeigt, wie man ihn loswird.
+   Teil IX zeigt, wie man ihn loswird.
 3. **Der Schlüssel ist nicht gesichert.** Der Token wurde ohne DKEK
    initialisiert. Der Seal-Key existiert genau einmal, im Chip. Teil VII
    sagt, was das bedeutet und was vor dem Produktiveinsatz zu tun ist.
@@ -577,7 +579,7 @@ server:
     tag: "2.6.2@sha256:265babb4f237b03cbcd94abaaf84a9cb5f75d74acecf88a867685f792564e2c5"
     pullPolicy: IfNotPresent
 
-  # Der Stick hängt an worker-03. Bewusster SPOF (Teil VIII).
+  # Der Stick hängt an worker-03. Bewusster SPOF (Teil IX).
   nodeSelector:
     kubernetes.io/hostname: worker-03
 
@@ -913,7 +915,262 @@ ssh worker-03 'sc-hsm-tool | grep tries'              # User PIN tries left: 3
 ```
 
 
-# Teil VIII – Ein HSM für alle Pods: die HSM-VM (Entwurf)
+# Teil VIII – Debug: Das Netzwerk-HSM antwortet nicht (Verfahren)
+
+*Dieser Teil ist keine protokollierte Sitzung. Er ist das Verfahren, mit
+dem ich einen Auto-Unseal gegen ein HSM im Netz auseinandernehme – Securosys
+Primus, Nitrokey NetHSM, Thales Luna, ein Cloud-HSM mit PKCS#11-Client. Die
+Kommandos sind generisch; die Erfahrung dahinter stammt aus Kundenumgebungen
+und aus Teil III bis VI dieses Leitfadens.*
+
+Das Symptom ist immer dasselbe: Der Pod startet, bleibt `0/1`, und im Log
+steht eine Zeile mit `seal "pkcs11"` und einem Fehler. Die Ursache liegt in
+einer von sieben Schichten, und die Reihenfolge, in der man sie prüft, ist
+nicht verhandelbar: **von außen nach innen, von dumm nach schlau.** Wer mit
+den OpenBao-Logs anfängt, liest eine Fehlermeldung, die vier Schichten tiefer
+entstanden ist.
+
+Der Unterschied zum USB-Stick aus Teil II: Zwischen `opensc-pkcs11.so` und
+dem Chip lagen dort `pcscd` und ein Socket. Beim Netzwerk-HSM liegt dort die
+**Hersteller-Bibliothek** – eine `.so`, die TCP spricht, TLS macht, eine
+eigene Konfigurationsdatei liest und eigene Logs schreibt. Sie ist die
+Schicht, die am häufigsten schweigt.
+
+## Die Kette
+
+```
+   Pod
+   ┌──────────────────────────────────────────────────────────────┐
+   │ bao   seal "pkcs11" { lib, slot|token_label, key_label, ... } │
+   │   │ dlopen                                                    │
+   │ <hersteller>-pkcs11.so  -- liest -->  /etc/<hersteller>/*.cfg │
+   │   │ TCP + TLS (Client-Zertifikat? Passwort? Token?)           │
+   └───┼──────────────────────────────────────────────────────────┘
+       │  NetworkPolicy · DNS · Egress · Firewall
+       ▼
+   HSM-Appliance :<port>  --  Partition/Slot  --  Key "openbao-unseal"
+                             └── eigene Logs: Init, Login, Fehlversuche
+```
+
+## Schritt 1 – Kommt man überhaupt hin?
+
+Aus dem Pod, nicht von der Node. Die Node hat andere Routen, andere Policies
+und meistens mehr Rechte:
+
+```sh
+kubectl -n openbao exec openbao-0 -- sh -c 'nc -zv -w 3 hsm.example.internal 2310'
+kubectl -n openbao exec openbao-0 -- sh -c 'nslookup hsm.example.internal'
+```
+
+`open` oder `succeeded` heißt: Schicht 1 ist erledigt. `timed out` heißt
+Firewall oder NetworkPolicy; `refused` heißt, der Host antwortet, aber der
+Port ist zu – falscher Port, falscher Dienst, HSM nicht im Betriebszustand.
+`can't resolve` heißt DNS, und DNS aus einem Pod ist ein anderes DNS als das
+der Node (CoreDNS, `ndots`, Search-Domains).
+
+Hat das Image kein `nc`: Debug-Pod aus Teil IV mit demselben Image, oder
+`kubectl debug -it openbao-0 --image=busybox --target=openbao`.
+
+## Schritt 2 – Liegt die Bibliothek da, und lädt sie?
+
+```sh
+kubectl -n openbao exec openbao-0 -- ls -la /usr/lib/<hersteller>/
+kubectl -n openbao exec openbao-0 -- ldd /usr/lib/<hersteller>/libprimusP11.so
+```
+
+`ldd` muss jede Zeile auflösen. Ein `not found` ist der Fehler – und es ist
+der Fehler, den OpenBao als `failed to load library` oder schlicht als
+`CKR_GENERAL_ERROR` meldet, ohne zu sagen, welche Abhängigkeit fehlt.
+Häufig: die Bibliothek ist für glibc gebaut, das Image ist Alpine (musl) –
+dieselbe Falle wie beim KMS-Plugin in Teil X. Prüfen mit `file <lib>` –
+`interpreter /lib64/ld-linux-x86-64.so.2` auf Alpine ist ein Nein.
+
+Zweite Frage in dieser Schicht: Findet die Bibliothek **ihre eigene
+Konfiguration**? Jeder Hersteller hat eine – Pfad, Host, Port, Zertifikate,
+Partition. Meist über eine Umgebungsvariable oder einen festen Pfad:
+
+```sh
+kubectl -n openbao exec openbao-0 -- env | grep -iE 'PRIMUS|NETHSM|CHRYSTOKI|PKCS11'
+kubectl -n openbao exec openbao-0 -- cat /etc/primus/primus.cfg   # o. ä.
+```
+
+Fehlt die Datei im Pod, weil der ConfigMap-Mount vergessen wurde, sieht die
+Bibliothek keinen Slot – und OpenBao sagt `failed to find token`. Dieselbe
+Meldung wie in Teil III, andere Ursache.
+
+## Schritt 3 – Sieht die Bibliothek einen Slot?
+
+```sh
+pkcs11-tool --module /usr/lib/<hersteller>/libprimusP11.so --list-slots
+```
+
+Erwartet: mindestens ein Slot mit `token label`, `token initialized`. „No
+slots“ heißt: Die Bibliothek läuft, erreicht das HSM aber nicht *als
+Client* – Schritt 1 ging (TCP), aber TLS scheitert, das Client-Zertifikat
+ist abgelaufen, die Partition heißt anders, oder der Benutzer der Bibliothek
+existiert auf der Appliance nicht. Ab hier hilft nur noch das Hersteller-Log
+(Schritt 7) – die PKCS#11-Ebene sagt nur „nein“.
+
+Notieren, was hier steht: **Slot-Nummer und Label exakt** – Teil III hat
+gezeigt, dass das Label das ist, was die Bibliothek erzeugt, nicht das, was
+in der Doku steht.
+
+## Schritt 4 – Kann das Token, was OpenBao braucht?
+
+```sh
+pkcs11-tool --module <lib> --list-mechanisms | grep -E 'AES-GCM|RSA-PKCS-OAEP'
+```
+
+OpenBao braucht `CKM_AES_GCM` oder `CKM_RSA_PKCS_OAEP`. Fehlt beides, gibt es
+keine Konfiguration, die funktioniert – nur einen anderen Schlüsseltyp oder
+ein anderes HSM. Fehlt nur AES-GCM (NetHSM, SmartCard-HSM), ist der Schlüssel
+ein RSA-Paar und `mechanism = "CKM_RSA_PKCS_OAEP"`.
+
+## Schritt 5 – Login und Schlüssel
+
+```sh
+pkcs11-tool --module <lib> --slot <n> --login -O
+```
+
+Die PIN wird abgefragt. Drei Ausgänge:
+
+- **`CKR_PIN_INCORRECT`** – falsche PIN. Nicht nochmal raten: Netzwerk-HSMs
+  sperren Benutzer nach wenigen Versuchen, und ein Pod im CrashLoop rät
+  jede Minute. Erst das Secret prüfen (Länge, Zeilenumbruch am Ende –
+  `echo` statt `printf` ist der Klassiker), dann einmal von Hand.
+- **Login ok, Schlüssel fehlt** – `key_label` stimmt nicht, oder der
+  Schlüssel liegt in einer anderen Partition, oder der Benutzer der PIN darf
+  ihn nicht sehen (Rollen: Operator vs. Administrator).
+- **Login ok, `openbao-unseal` da, mit `Usage: decrypt` bzw. `unwrap`** –
+  Schicht 5 ist erledigt. Steht dort nur `sign`, ist es der falsche Schlüssel
+  oder die falsche Nutzungsmaske.
+
+## Schritt 6 – Eine Operation, wenn es geht
+
+Die PKCS#11-Ebene beweist, dass der Schlüssel benutzbar ist, ohne OpenBao
+dazwischen:
+
+```sh
+head -c 32 /dev/urandom > /tmp/plain
+pkcs11-tool --module <lib> --slot <n> --login --encrypt \
+  --id <key-id> -m RSA-PKCS-OAEP --hash-algorithm SHA256 -i /tmp/plain -o /tmp/enc
+pkcs11-tool --module <lib> --slot <n> --login --decrypt \
+  --id <key-id> -m RSA-PKCS-OAEP --hash-algorithm SHA256 -i /tmp/enc | cmp - /tmp/plain && echo OK
+```
+
+Nicht jede Bibliothek unterstützt `--encrypt` über `pkcs11-tool`; dann
+genügt `--sign` mit demselben Schlüssel als Beweis, dass Login und
+Schlüsselzugriff gehen. Scheitert erst dieser Schritt (`CKR_MECHANISM_INVALID`,
+`CKR_KEY_FUNCTION_NOT_PERMITTED`), ist es der Mechanismus oder die
+Nutzungsmaske – nicht das Netz, nicht die PIN.
+
+## Schritt 7 – Was das HSM selbst sagt
+
+Jede Appliance hat ein Log, und es ist besser als alles, was die
+Client-Seite liefert. Bei Securosys Primus: das Audit-/System-Log der
+Partition; bei NetHSM: `nitropy nethsm logs` bzw. das Syslog-Ziel; bei Luna:
+`lunacm` und das Syslog des Geräts. Gesucht wird der Zeitstempel des letzten
+Pod-Starts:
+
+- *Connection from …, TLS handshake failed* → Zertifikat, Cipher, Zeit
+  (ein Pod ohne NTP und ein HSM mit strikter Uhr vertragen sich nicht)
+- *Login failed for user …* → PIN oder Benutzer; Fehlversuchszähler lesen
+- *Session opened, key … not found* → Label/Partition
+- gar nichts → Schicht 1 oder 2; die Verbindung kommt nie an
+
+## Schritt 8 – OpenBao-Konfiguration gegen das Gefundene halten
+
+Jetzt erst die Stanza, und zwar die **gerenderte**, nicht die in den Values:
+
+```sh
+kubectl -n openbao exec openbao-0 -- cat /openbao/config/extraconfig-from-values.hcl
+kubectl -n openbao exec openbao-0 -- sh -c 'env | grep -E "^BAO_HSM_" | sed "s/=.*/=<set>/"'
+```
+
+Fünf Werte, fünf Vergleiche mit Schritt 2 bis 5: `lib` = der Pfad, den `ldd`
+sauber aufgelöst hat; `slot` oder `token_label` = exakt die Ausgabe von
+Schritt 3; `key_label` = exakt die Ausgabe von Schritt 5; `mechanism` = einer
+aus Schritt 4; `BAO_HSM_PIN` gesetzt (Länge!) und nicht zusätzlich `pin` in
+der Stanza mit einem anderen Wert – die Umgebungsvariable gewinnt, und das
+Rätselraten, welche gilt, hat schon Stunden gekostet.
+
+## Schritt 9 – Mounts und Secrets
+
+```sh
+kubectl -n openbao describe pod openbao-0 | sed -n '/Mounts:/,/Conditions:/p'
+kubectl -n openbao get secret openbao-hsm -o json | python3 -c "…len…"   # Teil IV
+kubectl -n openbao get cm,secret -o name | grep -iE 'hsm|pkcs|primus'
+```
+
+Was `describe` zeigt, ist die Wahrheit; was in den Values steht, ist die
+Absicht. Ein Volume, das im StatefulSet fehlt, weil `OnDelete` den Pod nie
+ersetzt hat (Teil IV), sieht in den Values korrekt aus.
+
+## Schritt 10 – Jetzt die OpenBao-Logs
+
+```sh
+kubectl -n openbao logs openbao-0 --previous | grep -iE 'seal|pkcs|hsm|error'
+```
+
+`--previous`, weil der aktuelle Container im CrashLoop noch nichts geschrieben
+hat. Mit den Ergebnissen aus 1–9 ist die Fehlermeldung jetzt lesbar:
+`failed to find token` ist Schicht 2/3, `pin is required` Schicht 9,
+`CKR_MECHANISM_INVALID` Schicht 4, `this build of OpenBao has PKCS#11
+disabled` Teil III.
+
+## Schritt 11 – Von der Node ja, aus dem Pod nein
+
+Wenn Schritt 1 von der Node aus funktioniert und aus dem Pod nicht:
+
+```sh
+kubectl -n openbao get networkpolicy
+kubectl -n openbao describe networkpolicy <name>     # Egress zum HSM-Port erlaubt?
+kubectl -n openbao exec openbao-0 -- cat /etc/resolv.conf
+```
+
+Eine `default-deny`-Egress-Policy (Nº 7 hat eine für die Drill-Instanz) ist
+der Normalfall in gehärteten Namespaces. Die Regel muss den HSM-Port und
+DNS (53/UDP+TCP zu CoreDNS) freigeben. Service Meshes mit mTLS-Zwang sind
+die zweite Ursache: Ein Sidecar, das TLS terminieren will, macht aus einem
+TLS-Handshake der Hersteller-Bibliothek einen Fehler in Schritt 3.
+
+## Schritt 12 – Wenn alles stimmt und es trotzdem nicht geht: strace
+
+```sh
+kubectl debug -it openbao-0 --image=alpine --target=openbao -- \
+  sh -c 'apk add -q strace && strace -f -e trace=openat,connect -p 1 2>&1 | grep -iE "pkcs|\.cfg|connect"'
+```
+
+Zwei Fragen, die nur `strace` beantwortet: Öffnet der Prozess **wirklich**
+die Bibliothek aus `lib` (oder eine andere, weil ein zweiter Pfad im Image
+liegt)? Und öffnet die Bibliothek **ihre** Konfigurationsdatei – und welche?
+`openat(… "/etc/primus/primus.cfg") = -1 ENOENT` steht in keinem
+OpenBao-Log. `connect(… sin_port=htons(2310) …) = -1 ECONNREFUSED` auch nicht.
+
+## Die Reihenfolge, als Tabelle
+
+| # | Schicht | Kommando | Sagt bei Fehler |
+|---|---|---|---|
+| 1 | Netz | `nc -zv`, `nslookup` aus dem Pod | Firewall, NetworkPolicy, DNS, Port |
+| 2 | Bibliothek | `ls`, `ldd`, `file`, ihre `.cfg` | fehlende Abhängigkeit, glibc/musl, fehlender Mount |
+| 3 | Slot | `--list-slots` | TLS, Zertifikat, Partition, Benutzer |
+| 4 | Mechanismus | `--list-mechanisms` | Schlüsseltyp passt nicht zu OpenBao |
+| 5 | Login/Key | `--login -O` | PIN, Sperre, Label, Rolle |
+| 6 | Operation | `--encrypt/--decrypt` oder `--sign` | Nutzungsmaske, Mechanismus |
+| 7 | HSM-Log | Appliance | TLS-Handshake, Fehlversuche, Uhrzeit |
+| 8 | Stanza | gerenderte HCL + Env | Tippfehler, Env vs. Stanza |
+| 9 | Pod | `describe pod`, Secret-Länge | Mount fehlt, Secret leer |
+| 10 | OpenBao | `logs --previous` | jetzt lesbar |
+| 11 | Policy | `networkpolicy`, `resolv.conf`, Mesh | Egress, DNS, mTLS |
+| 12 | Syscalls | `strace -e openat,connect` | welche Datei, welcher Port wirklich |
+
+Und die Regel, die alle zwölf zusammenhält: **Nach jedem gefundenen Fehler
+wieder bei Schritt 1 anfangen.** Teil VI hat gezeigt, warum – jeder Fehler
+verdeckt den nächsten, und die Fehlermeldung ändert sich nicht immer, wenn
+die Ursache es tut.
+
+
+# Teil IX – Ein HSM für alle Pods: die HSM-VM (Entwurf)
 
 *Dieser Teil ist nicht umgesetzt. Er beschreibt, was der nächste Schritt
 wäre, und wägt die Wege ab.*
@@ -1002,7 +1259,7 @@ der alten Stanza vorsieht. Das wird Nº 6b oder ein Nachtrag zu diesem
 Leitfaden.
 
 
-# Teil IX – OpenBao 2.7: vom HSM-Build zum KMS-Plugin (Entwurf)
+# Teil X – OpenBao 2.7: vom HSM-Build zum KMS-Plugin (Entwurf)
 
 *Auch dieser Teil ist nicht umgesetzt; 2.7.0 ist zum Zeitpunkt des
 Schreibens Beta.*

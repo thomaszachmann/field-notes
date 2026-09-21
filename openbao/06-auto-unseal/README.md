@@ -46,12 +46,14 @@ variant. They stay as material for the follow-up (see below).
 ## Follow-up
 
 - **Nº 6b – one HSM for all pods**: stick moves to the VM, VM OpenBao gets
-  `seal "pkcs11"`, cluster OpenBao gets `seal "transit"`. Part VIII weighs
+  `seal "pkcs11"`, cluster OpenBao gets `seal "transit"`. Part IX weighs
   four ways and recommends this one.
 - **OpenBao 2.7**: the HSM distribution is discontinued; PKCS#11 becomes a
-  KMS plugin (glibc binary → UBI base image). Part IX has the draft.
+  KMS plugin (glibc binary → UBI base image). Part X has the draft.
 - Re-initialise the token with DKEK shares before the seal counts as
   production (Part VII).
+- Part VIII is a twelve-step debug procedure for a *network* HSM (Securosys,
+  NetHSM, Luna): outside-in, from `nc` to `strace`. A procedure, not a session.
 
 ## How this note was written
 
